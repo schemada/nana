@@ -54,7 +54,7 @@
             background: inherit; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 50;
             transition: transform 0.6s cubic-bezier(0.87, 0, 0.13, 1); padding: 20px;
         }
-        button, .beat-cell, .rhythm-card {
+        button, .beat-cell, .rhythm-card, #settings-btn, #lock-btn {
     -webkit-appearance: none; /* Kills Apple's default pill-shape and gradients */
     appearance: none;
     -webkit-tap-highlight-color: transparent; /* Kills the ugly gray flash when you tap */
@@ -73,43 +73,6 @@
             color: var(--banana-gold); white-space: pre; text-align: center;
             filter: drop-shadow(0 0 15px rgba(255, 215, 0, 0.5));
             margin-bottom: 30px; animation: mascotThump 0.5s ease-in-out infinite alternate;
-        }
-                /* --- DESKTOP UPSCALING (Only kicks in above 1024px) --- */
-@media (min-width: 1025px) {
-    .rhythm-card {
-        width: 110px;
-        height: 145px;
-    }
-    /* 1. Make the ASCII Mascot readable */
-    .mascot-box { 
-        font-size: 8px !important; /* Fixed size works better than vw on desktop */
-        line-height: 1.2;
-        margin-bottom: 40px;
-    }
-}
-
-@media (min-width: 601px) and (max-width: 1024px) {
-    .rhythm-card {
-        width: 85px;
-        height: 105px;
-    }
-}
-      /*iphone sizing*/      
-        @media (max-width: 600px) {
-            .beat-cell { height: 100px; } .beat-cell svg { width: 40px; } }
-    .beat-cell.active {
-    border-color: var(--teacher) !important;
-    box-shadow: 0 0 20px var(--teacher), inset 0 0 10px var(--teacher) !important;
-    transform: scale(1.05) !important;
-    z-index: 2; /* Brings the glowing box above the others */
-            .mascot-box { font-size: 1.2vw; }
-            .main-title { font-size: 1.4rem !important; }
-            .press-start { font-size: 1.2rem !important; padding: 20px 40px !important; }
-            /* Mobile Card Size */
-    .rhythm-card {
-        width: 65px; 
-        height: 78px;
-    }
         }
         
         @keyframes mascotThump { 0% { transform: scale(1.1) translateY(0); } 100% { transform: scale(1.15) translateY(-10px); } }
@@ -142,7 +105,6 @@
         .light-flash { animation: flashAnim 0.15s ease-out; }
         @keyframes flashAnim { 0% { opacity: 1; } 100% { opacity: 0; } }
         .picker-container { display: flex; gap: 8px; margin-bottom: 15px; flex-wrap: wrap; justify-content: center; width: 100%; }
-        .rhythm-card:active {
     transform: scale(0.94); /* Just a slight push inward */
 }
         .rhythm-card.selected { border-color: var(--primary); background: #252545; box-shadow: 0 0 15px var(--primary); }
@@ -152,6 +114,13 @@
         .beat-cell { 
             background: #0a0a1a; border: 4px solid #1a1a30; height: 130px; 
             border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center;
+        }
+        /* --- THE MISSING TEACHER GLOW --- */
+        .beat-cell.active {
+            border-color: var(--teacher) !important;
+            box-shadow: 0 0 20px var(--teacher), inset 0 0 10px var(--teacher) !important;
+            transform: scale(1.05) !important;
+            z-index: 2;
         }
     .beat-cell.student-active {
     border-color: var(--student) !important;
@@ -164,11 +133,32 @@
         #tempo-slider { background: linear-gradient(to right, var(--easy) 0% 30%, var(--medium) 30% 60%, var(--hard) 60% 85%, var(--expert) 85% 100%); }
         input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 25px; height: 25px; background: #fff; border: 4px solid #000; cursor: pointer; }
         .patch-btn { font-family: 'Press Start 2P'; font-size: 8px; padding: 8px; background: #111125; color: #888; border: 2px solid #444; border-radius: 4px; }
-        .patch-btn.active { background: var(--primary); color: #fff; border-color: #fff; }
         #toggle-btn { font-family: 'Press Start 2P'; width: 100%; padding: 18px; background: var(--action); color: #fff; border: none; box-shadow: 0 6px var(--action-shadow); cursor: pointer; font-size: 1.2rem; margin-top: 15px; }
         .measure-wrapper { position: relative; width: 100%; }
-        #lock-btn { position: absolute; right: 0; top: -32px; cursor: pointer; background: #1a1a30; border: 2px solid #444; padding: 4px; border-radius: 4px; }
+        #lock-btn { 
+            transition: all 0.2s ease;
+            position: absolute; right: 0; top: -32px; cursor: pointer; background: #1a1a30; border: 2px solid #444; padding: 4px; border-radius: 4px; }
+        #lock-btn:hover {
+            border-color: var(--primary);
+            background: rgba(93, 173, 226, 0.15);
+            box-shadow: 0 0 15px var(--primary), inset 0 0 5px var(--primary);
+            transform: scale(1.1);
+        }
+        /* Make the SVG icon inside change color on hover too */
+        #lock-btn:hover svg {
+            fill: var(--primary) !important;
+        }
         #lock-btn.locked { border-color: var(--action); }
+        /* If locked, give it an 'active' warning glow on hover */
+        #lock-btn.locked:hover {
+            border-color: var(--action);
+            box-shadow: 0 0 15px var(--action), inset 0 0 5px var(--action);
+            background: rgba(233, 69, 96, 0.15);
+        }
+        
+        #lock-btn.locked:hover svg {
+            fill: var(--action) !important;
+        }
         #lock-btn svg { width: 16px; height: 16px; fill: #888; }
         #lock-btn.locked svg { fill: var(--action); }
         
@@ -195,38 +185,53 @@
 
     /* 3. Scale the Rhythm Cards & Beat Cells */
     /* 1. GLOBAL LAYOUT (Keeps cards consistent across ALL themes) */
+/* --- COMPACT RHYTHM CARD SCALING --- */
 .rhythm-card {
- /* THE MAGIC FIX: 
-       flex-grow: 1 (grow to fill space)
-       flex-shrink: 0 (never shrink below min-width)
-       flex-basis: 20% (start at roughly 20% of the row width) */
     flex: 1 0 90px; 
-    
-    /* Set a limit so they don't get comically huge on massive screens */
     max-width: 120px;
-    
-    height: 110px; /* Increased height to give the icon more room */
+    height: 110px; 
     box-sizing: border-box;
-    -webkit-appearance: none;
-    -webkit-tap-highlight-color: transparent;
     border: 2px solid white;
     background-color: var(--card-bg);
-    border-radius: 12px; /* Slightly rounder for that arcade feel */
+    border-radius: 12px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
+    
+    /* 1. Push content to the top and bottom edges */
+    justify-content: space-between; 
+    
+    /* 2. Tighten padding to reclaim width for the SVG */
+    padding: 8px 4px !important; 
+    
     cursor: pointer;
     touch-action: manipulation;
-    margin: 4px; /* Added a tiny margin to keep them from touching */
+    margin: 4px;
 }
-    /* Ensure the SVG doesn't burst out of the card */
+
 .rhythm-card svg {
-    max-width: 80%;
+    /* 3. Maximize width for small screens */
+    width: 95% !important;
+    max-width: 95% !important;
     height: auto;
-    pointer-events: none; /* Allows the click to pass through to the div */
-}
     
+    /* 4. Ensure it leaves enough room for the label below */
+    max-height: 65%; 
+    pointer-events: none;
+}
+
+/* 5. Targeting the name label (the last div in the card) */
+.rhythm-card div:last-child {
+    font-size: 8px !important; /* Shrunk for better fit on mobile */
+    line-height: 1.2;
+    width: 100%;
+    text-align: center;
+    margin-bottom: 4px; /* Slight lift from the bottom border */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+        
     .beat-cell { 
         height: 180px; 
     }
@@ -243,13 +248,14 @@
         font-size: 2rem; padding: 30px; }
     .patch-btn { font-size: 12px; padding: 12px; }
    /* Gives the sound patch buttons that same soft, tactile push */
-.patch-btn:active {
-    border-color: var(--primary);
-    color: #fff;
-    background: rgba(93, 173, 226, 0.2); /* Slight blue glow */
-    box-shadow: 0 0 10px rgba(93, 173, 226, 0.5);
-    transform: scale(0.94);
-} 
+/* --- Add this right below the existing .patch-btn rule --- */
+.patch-btn.active {
+    border-color: var(--primary) !important;
+    color: var(--primary) !important;
+    background: rgba(93, 173, 226, 0.15) !important;
+    box-shadow: 0 0 10px var(--primary), inset 0 0 5px var(--primary) !important;
+    opacity: 1;
+}
     /* 5. Scale the text inside the cells */
     .beat-cell div { font-size: 12px !important; }
 }
@@ -287,7 +293,7 @@
     font-size: 24px;
     z-index: 1001;
     opacity: 0.5; /* Starts a bit dimmer/cleaner */
-    transition: all 0.2s ease; /* Smooth everything */
+    transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     user-select: none;
     line-height: 1;
 }
@@ -300,10 +306,7 @@
 }
 
 /* Mobile/Click Feel */
-#settings-btn:active {
-    transform: translateY(-50%) scale(0.9); /* Squishes down when tapped */
-    filter: drop-shadow(0 0 2px var(--primary));
-}
+
        #settings-overlay {
     position: fixed; top: 0; left: 0; right: 0; bottom: 0;
     background: rgba(8, 8, 26, 0.6); 
@@ -333,26 +336,68 @@ input[type=range] { width: 100%; accent-color: var(--primary); cursor: pointer; 
 #boot-btn {
     cursor: pointer;
 }
-        
-              #toggle-btn {
-    transition: all 0.1s ease-out;
-    cursor: pointer;
+/* --- 1. BOOT SYSTEM BUTTON (Flat Neon - Splash Screen) --- */
+/* 1. Static Green for Boot Button */
+#boot-btn:hover {
+    transform: scale(1.05) !important;
+    box-shadow: 0 0 20px var(--student) !important;
 }
-        #boot-btn:hover, #toggle-btn:hover {
-   filter: brightness(1.1);
-    box-shadow: 0 0 20px var(--action);
-    transform: translateY(-2px);
+
+/* 2. Dynamic Theme Colors for Start/Stop Toggle */
+#toggle-btn:hover {
+    transform: translateY(-2px) scale(1.02) !important;
+    box-shadow: 0 8px 0 var(--action-shadow), 
+                0 0 15px var(--action) !important;
 }
-        #boot-btn:active, #toggle-btn:active {
-    transform: translateY(2px) scale(0.98); /* Snaps down past the baseline */
-    box-shadow: 0 2px var(--action-shadow);
+
+/* --- 3. PRESSED 'CRUNCH' STATES --- */
+#boot-btn.pressed {
+    transform: scale(0.96) !important;
+    box-shadow: none !important;
 }
+
+#toggle-btn.pressed {
+    transform: translateY(6px) scale(0.98) !important;
+    box-shadow: 0 2px 0 var(--action-shadow) !important;
+    filter: brightness(0.9);
+}
+    
   #close-settings { 
     background: var(--primary); border: none; padding: 12px; color: white; 
     border-radius: 6px; font-family: inherit; cursor: pointer; width: 100%; margin-top: 10px;
     transition: transform 0.1s, filter 0.1s;
 }
-#close-settings:active { transform: scale(0.96); filter: brightness(0.9); }
+/* Subtle squish for the small settings gear icon */
+        #settings-btn.pressed {
+            transform: scale(0.9) !important; /* Squish + rotate for style */
+            transition: transform 0.1s ease !important;
+        }
+/* --- TASTEFUL SCREEN SHAKE (TWO-TIER SYSTEM) --- */
+        
+        /* 1. The Heavy Thud (Dialed back to max 1.5px) */
+        @keyframes shakeHeavy {
+            0% { transform: translate(0, 0); }
+            20% { transform: translate(-1.5px, 1px); }
+            40% { transform: translate(1.5px, -0.5px); }
+            60% { transform: translate(-1px, 1px); }
+            80% { transform: translate(0.5px, -0.5px); }
+            100% { transform: translate(0, 0); }
+        }
+
+        /* 2. The Light Tap (Sub-pixel movement, barely perceptible) */
+        @keyframes shakeLight {
+            0% { transform: translate(0, 0); }
+            30% { transform: translate(-0.5px, 0.5px); }
+            60% { transform: translate(0.5px, 0); }
+            100% { transform: translate(0, 0); }
+        }
+
+        /* Sped up from 0.15s to 0.12s to feel like a tight snap */
+        .shake-heavy { animation: shakeHeavy 0.12s cubic-bezier(0.36, 0.07, 0.19, 0.97) both !important; }
+        
+        /* Sped up from 0.10s to 0.08s so it acts strictly as a haptic 'tick' */
+        .shake-light { animation: shakeLight 0.08s ease-out both !important; }
+        
         /* --- ARCADE SKINS --- */
 
 /* 2. THEME OVERRIDES (Only swaps the variables) */
@@ -425,10 +470,178 @@ input[type=range] { width: 100%; accent-color: var(--primary); cursor: pointer; 
     mix-blend-mode: multiply; 
     opacity: 0.8;
 }
+        /* --- FAKE HAPTIC PRESS MECHANIC --- */
+        
+        /* 1. Ensure all action buttons snap fast (50ms) */
+        #toggle-btn, .patch-btn, #lock-btn {
+            transition: transform 0.05s ease, box-shadow 0.05s ease !important;
+        }
+        .rhythm-card, .patch-btn, #toggle-btn, #settings-btn {
+    touch-action: manipulation;
+    pointer-events: auto; /* Force the buttons to catch the touch */
+}
+/* --- THE TACTILE SQUISH VISUALS --- */
+.pressed {
+    transform: translateY(4px) scale(0.98) !important;
+    box-shadow: 0 2px 0 rgba(0,0,0,0.4) !important;
+}
+
+/* Specific override for your Neon Boot button */
+.boot-btn.pressed {
+    transform: scale(0.96) !important;
+    box-shadow: 0 0 20px rgba(93, 173, 226, 0.6), inset 0 0 20px rgba(93, 173, 226, 0.6) !important;
+}
+      
+        /* =========================================
+           RESPONSIVE SIZING & DEVICE QUERIES
+           ========================================= */
+
+        /* 1. DESKTOP UPSCALING (Over 1024px) */
+        @media (min-width: 1025px) {
+            .mascot-box { 
+                font-size: 8px !important; 
+                line-height: 1.2; 
+                margin-bottom: 40px; 
+            }
+            .main-title { 
+                font-size: 4rem; 
+            } 
+            .press-start, .boot-btn { 
+                font-size: 2rem; 
+                padding: 35px 70px; 
+            }
+            .rhythm-card { 
+                width: 110px; 
+                height: 145px; 
+            }
+        }
+
+        /* 2. IPAD / TABLET (601px to 1024px) */
+        @media (min-width: 601px) and (max-width: 1024px) {
+            .main-title { 
+                font-size: 2.5rem !important; 
+            }
+            .sub-title { 
+                font-size: 1rem; 
+            }
+            .press-start, .boot-btn { 
+                font-size: 1.5rem; 
+                padding: 25px 50px; 
+            }
+            .rhythm-card { 
+                width: 85px; 
+                height: 105px; 
+            }
+            .mascot-box {
+                font-size: 1vw;
+            }
+        }
+
+        /* 3. IPHONE / MOBILE (600px and under) */
+        @media (max-width: 600px) {
+            /* Tame the title and tighten the shadow for small screens */
+            .main-title { 
+                font-size: 1.5rem !important; 
+                text-shadow: 0 0 10px var(--primary), 4px 4px 0px #000; 
+                margin-bottom: 10px; 
+            }
+            
+            /* Tame the subtitle */
+            .sub-title { 
+                font-size: 0.7rem; 
+                margin: 15px 0 25px 0; 
+                letter-spacing: 4px; 
+            }
+            
+           
+            /* Tame the big green START button */
+            .press-start { 
+                font-size: 1.1rem !important; 
+                padding: 15px 30px !important; 
+                border-width: 4px; 
+                box-shadow: 0 6px 0 #064d3b; /* Shrinks the 3D block */
+            }
+            /* Tame the neon BOOT button */
+            .boot-btn { 
+                font-size: 1.1rem !important; 
+                padding: 15px 30px !important; 
+                border-width: 3px; 
+                box-shadow: 0 0 10px rgba(93, 173, 226, 0.3), inset 0 0 10px rgba(93, 173, 226, 0.3); /* Restores the neon glow! */
+            }
+             #toggle-btn { 
+                font-size: 1.1rem !important; 
+                padding: 15px 30px !important; 
+                border-width: 4px; 
+                box-shadow: 0 6px 0 #064d3b; 
+            }
+            
+            /* Shrink the tiny "TAP TO START" span if it's inside the button */
+            .press-start span, .boot-btn span {
+                font-size: 0.6em !important;
+            }
+            
+            /* Shrink the ASCII Mascot */
+            .mascot-box { 
+                font-size: 1.2vw; 
+                margin-bottom: 20px;
+            }
+            
+            /* Shrink the game board elements */
+            .beat-cell { 
+                height: 100px; 
+            }
+            .beat-cell svg { 
+                width: 40px; 
+            }
+            /* Give the rows some breathing room */
+            .picker-container { 
+                gap: 10px; 
+            }
+            /* Shrink the rhythm picker cards */
+            .rhythm-card { 
+                /* 33.33% forces exactly 3 cards per row maximum */
+                flex: 1 1 calc(33.33% - 15px); 
+                min-width: 85px;   /* Keeps them chunky and tap-friendly */
+                max-width: 100px;  /* Prevents the bottom two from stretching out horizontally */
+                height: 90px;      /* Restores that nice arcade button height */
+                margin: 0;         /* The 'gap' property above handles the spacing now */
+            }
+            .rhythm-card svg { 
+                height: 40px; 
+            }
+            /* --- THE ADVANCED MENU PYRAMID (5 Top, 4 Bottom) --- */
+            /* Detects if there are 6 or more cards, and magically applies this tighter layout */
+            .picker-container:has(.rhythm-card:nth-child(6)) .rhythm-card {
+                flex: 1 1 calc(20% - 10px); /* Forces exactly 5 cards per row */
+                min-width: 55px;  /* Shrunk down slightly to fit 5 across an iPhone */
+                max-width: 70px;  /* Prevents the bottom row from stretching too wide */
+                height: 75px;     /* Slightly shorter to save vertical screen space */
+                margin: 0;
+            }
+            
+            /* Scale the icons down to match the new advanced card size */
+            .picker-container:has(.rhythm-card:nth-child(6)) .rhythm-card svg {
+                height: 32px; 
+            }
+        }
+        
+        .version-tracker {
+            position: absolute;
+            bottom: 15px;
+            right: 20px;
+            font-family: 'Press Start 2P', monospace; /* Keeps it on-theme */
+            font-size: 8px;
+            color: #ffffff;
+            opacity: 0.4; /* Makes it subtly fade into the background */
+            pointer-events: none; /* PRO TIP: Prevents it from hijacking mobile taps */
+            letter-spacing: 1px;
+            z-index: 10;
+        }
     </style>
 </head>
 <body>
     <div class="vignette"></div>
+
     <div id="start-screen">
         <div class="mascot-box">
                                                                                                                                 
@@ -487,6 +700,7 @@ input[type=range] { width: 100%; accent-color: var(--primary); cursor: pointer; 
             <div class="sub-title">RHYTHM ARCADE</div>
         </div>
         <button class="press-start" id="boot-btn">START GAME</button>
+            <div id="version-display" class="version-tracker"></div>
     </div>
 
 
@@ -513,7 +727,7 @@ input[type=range] { width: 100%; accent-color: var(--primary); cursor: pointer; 
         <div class="picker-container" id="picker-adv" style="display:none; border-top: 2px dashed #444; padding-top: 20px; margin-bottom: 20px;"></div>
         <div id="state-display" class="state-banner visible" style="text-align: center; font-size: 24px; margin-bottom: 10px; color: white;">PICK BEATS</div>
         <div class="measure-wrapper">
-            <div id="lock-btn" title="Lock Pattern">
+            <div id="lock-btn">
                 <svg id="lock-icon" viewBox="0 0 24 24"><path d="M12 17c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm6-9h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6h1.9c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm0 12H6V10h12v10z"/></svg>
             </div>
 
@@ -527,7 +741,7 @@ input[type=range] { width: 100%; accent-color: var(--primary); cursor: pointer; 
                 <div style="width: 100%;">
     <div style="font-size: 8px; color: var(--primary); margin-bottom: 5px;">SOUND PATCH</div>
     <div style="display: flex; gap: 5px; justify-content: center;" id="main-sound-patches">
-        <button class="patch-btn active" data-patch="classic">SYNTH</button>
+        <button class="patch-btn active" data-patch="sawtooth">SYNTH</button>
         <button class="patch-btn" data-patch="bloop">BLOOP</button>
         <button class="patch-btn" data-patch="metallic">METAL</button>
     </div>
@@ -590,11 +804,14 @@ input[type=range] { width: 100%; accent-color: var(--primary); cursor: pointer; 
 </div>
 
     </div>
-        
-<script>
+    <script>
+    // --- APP CONFIG --- Updade Game Version Here
+    const GAME_VERSION = "v1.1.0";
+        // Unlocks CSS :active states on iOS Safari
+    document.body.addEventListener('touchstart', function() {}, {passive: true});
     let audioCtx, masterGain, compressor,masterVolumeNode;
     const light = document.getElementById('central-light'), toggleBtn = document.getElementById('toggle-btn'), slider = document.getElementById('tempo-slider'), patchBtns = document.querySelectorAll('.patch-btn'), lockBtn = document.getElementById('lock-btn'), lockIcon = document.getElementById('lock-icon');
-    let isRunning = false, tempo = 80, secondsPerBeat = 0.75, nextNoteTime = 0, currentBeatIndex = 0, isTeacherTurn = true, currentRhythm = [], soundType = 'classic', isLocked = false, isFirstBoot = true;
+    let isRunning = false, tempo = 80, secondsPerBeat = 0.75, nextNoteTime = 0, currentBeatIndex = 0, isTeacherTurn = true, currentRhythm = [], soundType = 'sawtooth', isLocked = false, isFirstBoot = true;
     let turnHistory = []; // NEW: Stores the patterns for the student to repeat
     // NEW: Time Signature State
     let beatsPerMeasure = 4;
@@ -614,6 +831,7 @@ input[type=range] { width: 100%; accent-color: var(--primary); cursor: pointer; 
     };
     // 1. Menu Open/Close
    document.getElementById('settings-btn').onclick = () => {
+       triggerShake('light', 'settings-overlay');
     syncPatchButtons(); // Add this line!
     document.getElementById('settings-overlay').style.display = 'flex';
 };
@@ -758,7 +976,7 @@ function playMetronome(isDownbeat, time) {
 }
     patchBtns.forEach(btn => { btn.onclick = () => { patchBtns.forEach(b => b.classList.remove('active')); btn.classList.add('active'); soundType = btn.dataset.patch; initAudio(); }; });
     lockBtn.onclick = () => { isLocked = !isLocked; lockBtn.classList.toggle('locked', isLocked); lockIcon.innerHTML = isLocked ? `<path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/>` : `<path d="M12 17c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm6-9h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6h1.9c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm0 12H6V10h12v10z"/>`; initAudio(); };
-    Object.keys(RHYTHM_CONFIG).forEach(key => { const card = document.createElement('div'); const isDefault = (key === 'Boo' || key === 'Nana'); card.className = `rhythm-card ${isDefault ? 'selected' : ''}`; card.dataset.type = key; const label = RHYTHM_CONFIG[key].name ? `<div style="font-size:6px;">${RHYTHM_CONFIG[key].name}</div>` : ''; card.innerHTML = SVGS[key] + label; card.onclick = () => { card.classList.toggle('selected'); initAudio(); }; if (RHYTHM_CONFIG[key].name && key !== 'Offbeat') { document.getElementById('picker-basic').appendChild(card); } else { document.getElementById('picker-adv').appendChild(card); } });
+    Object.keys(RHYTHM_CONFIG).forEach(key => { const card = document.createElement('div'); const isDefault = (key === 'Boo' || key === 'Nana'); card.className = `rhythm-card ${isDefault ? 'selected' : ''}`; card.dataset.type = key; const label = RHYTHM_CONFIG[key].name ? `<div style="font-size:6px;">${RHYTHM_CONFIG[key].name}</div>` : ''; card.innerHTML = SVGS[key] + label; card.onclick = () => {card.classList.toggle('selected'); initAudio(); }; if (RHYTHM_CONFIG[key].name && key !== 'Offbeat') { document.getElementById('picker-basic').appendChild(card); } else { document.getElementById('picker-adv').appendChild(card); } });
     
     // UPDATED: Advanced Panel Toggle
     document.getElementById('adv-toggle').onclick = function() { 
@@ -1024,7 +1242,50 @@ function playTone(freq, time, vol = 0.2, dur = 0.1, isMetronome = false) {
     }
     
     slider.oninput = (e) => { tempo = e.target.value; secondsPerBeat = 60/tempo; document.getElementById('tempo-val').innerText = tempo + " BPM"; let rk = tempo < 90 ? {t:"[EASY]", c:"--easy"} : tempo < 140 ? {t:"[MED]", c:"--medium"} : tempo < 180 ? {t:"[HARD]", c:"--hard"} : {t:"[EXPERT]", c:"--expert"}; document.getElementById('rank-label').innerText = rk.t; document.getElementById('rank-label').style.color = `var(${rk.c})`; };
+// --- UTILITIES ---
+    
+    function triggerShake(intensity = 'heavy', targetId = 'game-container') {
+        const target = document.getElementById(targetId);
+        if (!target) return;
+        const shakeClass = intensity === 'heavy' ? 'shake-heavy' : 'shake-light';
+        target.classList.remove('shake-heavy', 'shake-light'); 
+        void target.offsetWidth; 
+        target.classList.add(shakeClass);
+        setTimeout(() => target.classList.remove(shakeClass), 150);
+    }
 
+    // THE RESCUED FUNCTION (Move this here!)
+    function attachTactileFeedback(selector) {
+        const elements = document.querySelectorAll(selector);
+        
+        elements.forEach(el => {
+            el.addEventListener('pointerdown', () => {
+                // Keep the visual squish for every button
+                el.classList.add('pressed');
+                
+                // ONLY trigger the shake for the major "Entry" buttons
+                // (This excludes the toggle-btn and rhythm-cards)
+                if (el.classList.contains('press-start') || el.classList.contains('boot-btn')) {
+                    triggerShake('heavy', 'game-container');
+                }
+            });
+
+            el.addEventListener('pointerup', () => el.classList.remove('pressed'));
+            el.addEventListener('pointerleave', () => el.classList.remove('pressed'));
+        });
+    }
+    function triggerShake(intensity = 'heavy', targetId = 'game-container') {
+        const target = document.getElementById(targetId);
+        if (!target) return;
+        
+        const shakeClass = intensity === 'heavy' ? 'shake-heavy' : 'shake-light';
+        
+        target.classList.remove('shake-heavy', 'shake-light'); 
+        void target.offsetWidth; // Force browser to restart animation
+        target.classList.add(shakeClass);
+        
+        setTimeout(() => target.classList.remove(shakeClass), 150);
+    }
     const bootAction = () => { 
         try {
             // 1. Start the audio engine
@@ -1055,6 +1316,7 @@ function playTone(freq, time, vol = 0.2, dur = 0.1, isMetronome = false) {
             if (gameContainer) gameContainer.classList.add('visible'); 
         }
     };
+        
     document.getElementById('boot-btn').onclick = bootAction;
 
     toggleBtn.onclick = async () => {
@@ -1159,7 +1421,7 @@ function syncPatchButtons() {
         }
     }
 }
-
+      
     timeSigSelect.onchange = (e) => {
         beatsPerMeasure = parseInt(e.target.value);
         // Treat time signature changes just like a mode change! Extend seamlessly.
@@ -1206,7 +1468,12 @@ function syncPatchButtons() {
     };
 
   window.addEventListener('DOMContentLoaded', () => {
+    // Inject the current version into the UI
+    document.getElementById('version-display').innerText = GAME_VERSION;
+          console.log(`%c NANA NANA BOO BOO %c ${GAME_VERSION} `, 'background:#5dade2; color:#000; font-weight:bold; padding:4px;', 'background:#1a1a2e; color:#fff; padding:4px;');
     // 1. Theme Logic
+      // This activates the visuals AND the shake for everything
+    attachTactileFeedback('.press-start, #boot-btn, .rhythm-card, .patch-btn, #toggle-btn, #settings-btn');
     const themeSelect = document.getElementById('theme-select');
     const savedTheme = localStorage.getItem('nana-theme');
     if (savedTheme && savedTheme !== 'default') {
@@ -1223,8 +1490,8 @@ function syncPatchButtons() {
     metronomeSound = defaultSound; // Update the variable
 
     // Update the UI to show the correct button is active
-    document.querySelectorAll('#settings-overlay .patch-btn').forEach(btn => {
-        if (btn.dataset.sound === defaultSound) {
+ document.querySelectorAll('.patch-row:not(#settings-overlay *) .patch-btn').forEach(btn => {
+        if (btn.dataset.patch === soundType) {
             btn.classList.add('active');
         } else {
             btn.classList.remove('active');
