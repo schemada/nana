@@ -1,23 +1,27 @@
 {
-  "short_name": "NANA NANA",
   "name": "NANA NANA BOO BOO Rhythm Arcade",
+  "short_name": "NANA NANA",
+  "description": "An arcade style call and response rhythm game for musicians",
   "icons": [
     {
-      "src": "your-icon-name.png",
+      "src": "icon1.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
-      "src": "your-icon-name-512.png",
+      "src": "icon1.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ],
-  "start_url": "./index.html",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
   "background_color": "#08081a",
   "theme_color": "#08081a",
-  "display": "standalone",
   "orientation": "portrait"
-
 }
+
 
