@@ -14,6 +14,26 @@
 <link rel="manifest" href="manifest.json">
     <title>NANA NANA BOO BOO // RHYTHM ARCADE</title>
     <style>
+        /* --- THE UNIVERSAL MORPH --- */
+/* This makes elements slide and resize smoothly when rotating */
+.main-title, 
+.state-banner, 
+.measure-wrapper, 
+.beat-cell, 
+.controls, 
+.rhythm-card, 
+.patch-btn, 
+#toggle-btn, 
+.support-link,
+#central-light {
+    transition: 
+        height 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+        margin 0.4s ease-out, 
+        padding 0.4s ease-out, 
+        font-size 0.3s ease-out,
+        transform 0.4s ease-out,
+        filter 0.4s ease-out;
+}
         @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
         /* --- THEME PALETTES WITH ACTION COLOR --- */
 /* --- THEME PALETTES WITH DYNAMIC ACCENTS --- */
@@ -190,21 +210,27 @@
         input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 25px; height: 25px; background: #fff; border: 4px solid #000; cursor: pointer; }
         .patch-btn { font-family: 'Press Start 2P'; font-size: 8px; padding: 8px; background: #111125; color: #888; border: 2px solid #444; border-radius: 4px; }
         #toggle-btn { font-family: 'Press Start 2P'; width: 100%; padding: 18px; background: var(--action); color: #fff; border: none; box-shadow: 0 6px var(--action-shadow); cursor: pointer; font-size: 1.2rem; margin-top: 15px; }
-       .measure-wrapper {
-    /* THE FIX: Pops the invisible balloon keeping them apart */
+      .measure-wrapper {
+    position: relative; /* <--- THIS IS THE MISSING ANCHOR */
     flex-grow: 0; 
-    
     display: flex;
     flex-direction: column;
     justify-content: center;
     width: 100%;
-    
-    /* Top: 30px, Sides: 0, Bottom: 10px (Pulls the bottom UI up!) */
-            margin: 30px 0 10px 0 !important;
+    margin: 30px 0 10px 0 !important;
 }
         #lock-btn { 
-            transition: all 0.2s ease;
-            position: absolute; right: 0; top: -32px; cursor: pointer; background: #1a1a30; border: 2px solid #444; padding: 4px; border-radius: 4px; }
+    transition: all 0.2s ease;
+    position: absolute; 
+    right: 0; 
+    top: -36px; /* Nudged up slightly for better breathing room */
+    cursor: pointer; 
+    background: #1a1a30; 
+    border: 2px solid #444; 
+    padding: 6px; 
+    border-radius: 4px;
+    z-index: 100; /* Ensures it stays on the top "layer" */
+}
         #lock-btn:hover {
             border-color: var(--primary);
             background: rgba(93, 173, 226, 0.15);
@@ -622,10 +648,11 @@ input[type=range] { width: 100%; accent-color: var(--primary); cursor: pointer; 
         @media (max-width: 600px) {
 
             /* --- THE MAGNET FIX (Centered & Clumped) --- */
-            #game-container {
-                justify-content: flex-start !important; /* Changed from center! */
+           #game-container {
+                /* 1. Add a more aggressive bottom buffer for the iPhone Home Bar */
+                padding-bottom: max(40px, env(safe-area-inset-bottom)) !important;
+                justify-content: center !important; /* Keeps it centered */
             }
-
             .measure-wrapper {
                 flex-grow: 0 !important;
                 margin: 10px 0 5px 0 !important; /* Only 5px of gap below it! */
@@ -649,13 +676,15 @@ input[type=range] { width: 100%; accent-color: var(--primary); cursor: pointer; 
             }
 
             .support-link { 
-                margin-top: 0px !important; 
-                margin-bottom: 0px !important;
-                padding-bottom: env(safe-area-inset-bottom) !important; 
+                /* 3. Add a tiny bit of extra padding to lift it off the floor */
+                margin-top: 5px !important;
+                padding-bottom: 10px !important; 
+                display: block; /* Ensures the height is respected */
             }
 
-            .beat-cell { 
-                height: 105px !important; /* Maximize this! */
+            beat-cell { 
+                /* 2. Shave 7px off to give the footer more breathing room */
+                height: 98px !important; 
             }
             .beat-cell svg { 
                 width: 40px; 
@@ -789,6 +818,7 @@ input[type=range] { width: 100%; accent-color: var(--primary); cursor: pointer; 
                 padding-top: 2px !important;
                 padding-bottom: max(2px, env(safe-area-inset-bottom)) !important;
                 justify-content: center !important; 
+                animation: landscape-snap 0.5s ease-out;
             }
 
             .sub-title, .mascot-box { 
@@ -823,7 +853,12 @@ input[type=range] { width: 100%; accent-color: var(--primary); cursor: pointer; 
             .beat-cell svg {
                 width: 24px; 
             }
-
+            .tempo-val, .rank-label {
+                font-size: 0.6rem !important; /* Shrunk from standard size */
+                letter-spacing: 1px !important;
+                margin-bottom: 2px !important;
+                opacity: 0.8; /* Makes it look cleaner/more 'pro' in tight spaces */
+            }
             /* 4. NUDGE UP: Lightbar (1 arrow key up) */
             #central-light {
                 /* Switching from 'auto' to a fixed 4px margin pulls the 
@@ -864,12 +899,23 @@ input[type=range] { width: 100%; accent-color: var(--primary); cursor: pointer; 
 
             /* 7. Action Buttons & Footer (Clamped tight) */
             .press-start, .boot-btn, #toggle-btn {
-                padding: 4px 10px !important;
-                font-size: 0.75rem !important;
-                border-width: 2px !important;
-                box-shadow: 0 3px 0 #064d3b !important; 
+                padding: 8px 20px !important; 
+                font-size: 0.9rem !important;
+                /* Increased height makes it much easier to hit in landscape */
+                min-height: 38px !important;
+            }
+/* 1. Shrink the Sound Patch buttons (The "Givers") */
+            .patch-btn {
+                padding: 4px 8px !important; /* Thinner vertical profile */
+                font-size: 0.65rem !important;
+                min-width: 50px !important;
+                height: auto !important;
             }
 
+            .patch-row {
+                gap: 4px !important; /* Tighter grouping */
+                margin-top: 2px !important;
+            }
             .footer-row {
                 margin-top: 0px !important;
             }
@@ -883,6 +929,9 @@ input[type=range] { width: 100%; accent-color: var(--primary); cursor: pointer; 
             #settings-btn {
                 padding: 2px !important; 
             }
+            @keyframes landscape-snap {
+    0% { transform: scale(0.95) rotate(-1deg); opacity: 0.8; filter:blur(2px); }
+    100% { transform: scale(1) rotate(0deg); opacity: 1; filter:blur(0px); }
         }
     </style>
 </head>
