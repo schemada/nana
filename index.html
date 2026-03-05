@@ -874,8 +874,11 @@ input[type=range] { width: 100%; accent-color: var(--primary); cursor: pointer; 
                 margin-top: 0px !important;
             }
             .support-link {
-                font-size: 8px !important;
+                font-size: 6px !important; /* Shrunk from 8px */
+                letter-spacing: 0.5px !important; /* Tightens the horizontal footprint */
                 margin: 0 !important;
+                padding-bottom: 0 !important; 
+                opacity: 0.7; /* Softens it slightly so it doesn't compete for attention */
             }
             #settings-btn {
                 padding: 2px !important; 
