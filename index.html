@@ -741,7 +741,7 @@ input[type=range] { width: 100%; accent-color: var(--primary); cursor: pointer; 
                 <div style="width: 100%;">
     <div style="font-size: 8px; color: var(--primary); margin-bottom: 5px;">SOUND PATCH</div>
     <div style="display: flex; gap: 5px; justify-content: center;" id="main-sound-patches">
-        <button class="patch-btn active" data-patch="sawtooth">SYNTH</button>
+        <button class="patch-btn active" data-patch="classic">SYNTH</button>
         <button class="patch-btn" data-patch="bloop">BLOOP</button>
         <button class="patch-btn" data-patch="metallic">METAL</button>
     </div>
@@ -811,7 +811,7 @@ input[type=range] { width: 100%; accent-color: var(--primary); cursor: pointer; 
     document.body.addEventListener('touchstart', function() {}, {passive: true});
     let audioCtx, masterGain, compressor,masterVolumeNode;
     const light = document.getElementById('central-light'), toggleBtn = document.getElementById('toggle-btn'), slider = document.getElementById('tempo-slider'), patchBtns = document.querySelectorAll('.patch-btn'), lockBtn = document.getElementById('lock-btn'), lockIcon = document.getElementById('lock-icon');
-    let isRunning = false, tempo = 80, secondsPerBeat = 0.75, nextNoteTime = 0, currentBeatIndex = 0, isTeacherTurn = true, currentRhythm = [], soundType = 'sawtooth', isLocked = false, isFirstBoot = true;
+    let isRunning = false, tempo = 80, secondsPerBeat = 0.75, nextNoteTime = 0, currentBeatIndex = 0, isTeacherTurn = true, currentRhythm = [], soundType = 'classic', isLocked = false, isFirstBoot = true;
     let turnHistory = []; // NEW: Stores the patterns for the student to repeat
     // NEW: Time Signature State
     let beatsPerMeasure = 4;
@@ -888,13 +888,48 @@ function playMetronome(isDownbeat, time) {
             gain.gain.exponentialRampToValueAtTime(0.001, t + 0.03);
             gain.gain.linearRampToValueAtTime(0, t + 0.04); // Force absolute zero
             osc.start(t); osc.stop(t + 0.08); 
-        } else if (metronomeSound === 'wood') {
-            osc.type = 'triangle';
-            osc.frequency.setValueAtTime(isDownbeat ? 975 : 575, t);
-            osc.frequency.exponentialRampToValueAtTime(200, t + 0.02);
-            gain.gain.exponentialRampToValueAtTime(0.001, t + 0.04);
-            gain.gain.linearRampToValueAtTime(0, t + 0.05); // Force absolute zero
-            osc.start(t); osc.stop(t + 0.1); 
+  } else if (metronomeSound === 'wood') {
+            // --- THE PRECISION CLICK (Zero-Attack / Steep Decay) ---
+            
+            // 1. OSCILLATOR D: The "Body" (Triangle Wave)
+            const oscD = audioCtx.createOscillator();
+            const gainD = audioCtx.createGain();
+            oscD.type = 'triangle';
+            
+            const fund = isDownbeat ? 430 : 330; 
+            oscD.frequency.setValueAtTime(fund, t);
+
+            // Subtle Pitch Env (12% intensity) for the "Thud"
+            oscD.frequency.exponentialRampToValueAtTime(fund * 1.08, t + 0.002);
+            oscD.frequency.exponentialRampToValueAtTime(fund, t + 0.015);
+
+            // Envelope D: Harder fall-off (Shortened to 120ms for a tighter feel)
+            gainD.gain.setValueAtTime(0, t);
+            gainD.gain.linearRampToValueAtTime(finalVol * 0.7, t + 0.001); // Near-instant attack
+            gainD.gain.exponentialRampToValueAtTime(0.0001, t + 0.12); 
+            gainD.gain.linearRampToValueAtTime(0, t + 0.13);
+
+            // 2. OSCILLATOR C: The "Precision Click" (Sine Wave)
+            const oscC = audioCtx.createOscillator();
+            const gainC = audioCtx.createGain();
+            oscC.type = 'sine';
+            // Pushed higher for the downbeat to cut through the mix
+            oscC.frequency.setValueAtTime(isDownbeat ? 980 : 490, t);
+
+            gainC.gain.setValueAtTime(0, t);
+            // ZERO ATTACK: This is the "Click Track" secret
+            gainC.gain.linearRampToValueAtTime(finalVol * 1.5, t + 0.001); 
+            // Aggressive decay: 99% of the volume is gone in 35ms
+            gainC.gain.exponentialRampToValueAtTime(0.0001, t + 0.035);
+            gainC.gain.linearRampToValueAtTime(0, t + 0.04);
+
+            oscD.connect(gainD);
+            gainD.connect(destination);
+            oscC.connect(gainC);
+            gainC.connect(destination);
+
+            oscD.start(t); oscD.stop(t + 0.2);
+            oscC.start(t); oscC.stop(t + 0.1);
         }
     }
     const RHYTHM_CONFIG = { 
@@ -1178,7 +1213,7 @@ function playTone(freq, time, vol = 0.2, dur = 0.1, isMetronome = false) {
 
         // 2. Noise (The Texture)
         const noise = audioCtx.createBufferSource();
-        noise.buffer = window.noiseBuffer;
+        if (window.noiseBuffer) noise.buffer = window.noiseBuffer;
         const noiseGain = audioCtx.createGain();
         
         // --- THE GOLDEN SHIELD: Force silent default ---
@@ -1189,7 +1224,7 @@ function playTone(freq, time, vol = 0.2, dur = 0.1, isMetronome = false) {
         noiseGain.gain.exponentialRampToValueAtTime(0.0001, t + dur); 
         noiseGain.gain.linearRampToValueAtTime(0, t + dur + 0.01); 
         noiseGain.connect(destination);
-        noise.connect(noiseGain);
+        if (window.noiseBuffer) noise.connect(noiseGain);
 
         // 3. Sound Logic
         let currentSound = (typeof soundType !== 'undefined') ? soundType : 'classic';
@@ -1199,22 +1234,73 @@ function playTone(freq, time, vol = 0.2, dur = 0.1, isMetronome = false) {
         if (currentSound === 'classic') {
             osc.type = 'triangle';
             osc.frequency.setValueAtTime(freq, t);
+            osc.connect(g); // Route directly to volume
+            
         } else if (currentSound === 'bloop') {
             osc.type = 'sine';
             osc.frequency.setValueAtTime(freq, t);
-        } else {
-            osc.type = 'sawtooth';
-            osc.frequency.setValueAtTime(freq, t);
+            osc.connect(g); // Route directly to volume
+            
+} else {
+            // --- THE SANDPAPER CLAVE (Balanced & Textured) ---
+            
+            // 1. THE WOODEN BODY (Triangle + Sine Blend)
+            // Triangle waves have a softer, more "hollow" character than square or sine.
+            const woodOsc = audioCtx.createOscillator();
+            const woodGain = audioCtx.createGain();
+            woodOsc.type = 'triangle'; 
+            woodOsc.frequency.setValueAtTime(freq * 2.1, t); // The "Knock"
+
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(freq * 5.2, t); // The "Ping"
+            
+            woodOsc.connect(woodGain);
+            woodGain.connect(destination);
+            osc.connect(g);
+
+            // 2. SOFTENED ENVELOPES
+            // We're using a slightly slower 0.005 attack to remove the "digital pop" 
+            // and a tight 50ms decay to match the other game sounds.
+            const attack = 0.005; 
+            const decay = 0.05; 
+
+            [g, woodGain].forEach(node => {
+                node.gain.setValueAtTime(0, t);
+                node.gain.linearRampToValueAtTime(finalVol * 0.9, t + attack);
+                node.gain.exponentialRampToValueAtTime(0.001, t + decay);
+            });
+
+            // 3. THE SANDPAPER (Textured Noise)
+            // We use a Bandpass filter to keep the noise "mid-heavy" and gritty
+            const sandFilter = audioCtx.createBiquadFilter();
+            sandFilter.type = 'bandpass';
+            sandFilter.frequency.setValueAtTime(3500, t); 
+            sandFilter.Q.setValueAtTime(0.8, t); // Wide enough to feel "grainy"
+
+            noiseGain.disconnect();
+            noiseGain.connect(sandFilter);
+            sandFilter.connect(destination);
+
+            // The noise clings to the clave: 40ms decay
+            noiseGain.gain.cancelScheduledValues(t);
+            noiseGain.gain.setValueAtTime(0, t);
+            noiseGain.gain.linearRampToValueAtTime(finalVol * 1.1, t + attack); 
+            noiseGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.04); 
+
+            woodOsc.start(t);
+            woodOsc.stop(t + 0.1);
         }
         
+        // ---> THIS BLOCK WAS MISSING! <---
         // 4. Start everything
-        osc.connect(g); 
         osc.start(t); 
-        osc.stop(t + dur + 0.05); // Generous 50ms buffer to guarantee silence before stop
-        noise.start(t); 
-        noise.stop(t + dur + 0.05);
+        osc.stop(t + dur + 0.05); 
+        if (window.noiseBuffer) {
+            noise.start(t); 
+            noise.stop(t + dur + 0.05);
+        }
     }
-
+        
     function triggerLight(time) {
         const delay = Math.max(0, (time - audioCtx.currentTime) * 1000);
         setTimeout(() => {
