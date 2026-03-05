@@ -13,10 +13,6 @@
 
 <link rel="manifest" href="manifest.json">
     <title>NANA NANA BOO BOO // RHYTHM ARCADE</title>
-    <title>NANA NANA BOO BOO // Rhythm Arcade</title>
-<meta name="description" content="An arcade style rhythm trainer game. Master the groove through addictive call-and-response.">
-<meta property="og:title" content="NANA NANA BOO BOO">
-<meta property="og:url" content="https://nananana.app">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
         /* --- THEME PALETTES WITH ACTION COLOR --- */
@@ -264,7 +260,6 @@
     overflow: hidden;
     text-overflow: ellipsis;
 }
-        
     .beat-cell { 
         height: 180px; 
     }
@@ -313,7 +308,7 @@
 }
 
 .beat-cell svg {
-    max-width: 80%; /* Scales the icons down automatically */
+    max-width: 90%; /* Scales the icons down automatically */
     height: auto;
 }
 #settings-btn {
@@ -400,11 +395,6 @@ input[type=range] { width: 100%; accent-color: var(--primary); cursor: pointer; 
     border-radius: 6px; font-family: inherit; cursor: pointer; width: 100%; margin-top: 10px;
     transition: transform 0.1s, filter 0.1s;
 }
-/* Subtle squish for the small settings gear icon */
-        #settings-btn.pressed {
-            transform: scale(0.9) !important; /* Squish + rotate for style */
-            transition: transform 0.1s ease !important;
-        }
 /* --- TASTEFUL SCREEN SHAKE (TWO-TIER SYSTEM) --- */
         
         /* 1. The Heavy Thud (Dialed back to max 1.5px) */
@@ -547,7 +537,10 @@ input[type=range] { width: 100%; accent-color: var(--primary); cursor: pointer; 
                 width: 110px; 
                 height: 145px; 
             }
-        }
+            /* 1. DESKTOP DEFAULT */
+.beat-cell .svg-boo  { transform: scale(0.85); } /* 85% size */
+.beat-cell .svg-rest { transform: scale(0.75); } /* 75% size (Rest is thick, needs a bit more) */
+.beat-cell .svg-nana { transform: scale(0.95); } /* 95% size (Barely touched) */
 
         /* 2. IPAD / TABLET (601px to 1024px) */
         @media (min-width: 601px) and (max-width: 1024px) {
@@ -565,6 +558,10 @@ input[type=range] { width: 100%; accent-color: var(--primary); cursor: pointer; 
                 width: 85px; 
                 height: 105px; 
             }
+           .beat-cell .svg-boo  { transform: scale(0.80); }
+    .beat-cell .svg-rest { transform: scale(0.70); }
+    .beat-cell .svg-nana { transform: scale(0.90); }
+}
             .mascot-box {
                 font-size: 1vw;
             }
@@ -572,6 +569,11 @@ input[type=range] { width: 100%; accent-color: var(--primary); cursor: pointer; 
 
         /* 3. IPHONE / MOBILE (600px and under) */
         @media (max-width: 600px) {
+            .controls { 
+            padding: 15px !important; 
+            margin-top: 10px !important; 
+        }
+            
             /* Tame the title and tighten the shadow for small screens */
             .main-title { 
                 font-size: 1.5rem !important; 
@@ -618,14 +620,21 @@ input[type=range] { width: 100%; accent-color: var(--primary); cursor: pointer; 
                 font-size: 1.2vw; 
                 margin-bottom: 20px;
             }
-            
+            .beat-cell .svg-boo  { transform: scale(0.75); }
+    .beat-cell .svg-rest { transform: scale(0.65); }
+    .beat-cell .svg-nana { transform: scale(0.85); }
             /* Shrink the game board elements */
             .beat-cell { 
-                height: 100px; 
+            
+                height: 80px; 
             }
             .beat-cell svg { 
                 width: 40px; 
             }
+            /* 4. Pull the Lightbar closer to save space */
+        #central-light {
+            margin: 10px auto !important; 
+        }
             /* Give the rows some breathing room */
             .picker-container { 
                 gap: 10px; 
@@ -656,6 +665,12 @@ input[type=range] { width: 100%; accent-color: var(--primary); cursor: pointer; 
             .picker-container:has(.rhythm-card:nth-child(6)) .rhythm-card svg {
                 height: 32px; 
             }
+            /* 2. Pull the Support Link and Settings Icon up */
+        .support-link { 
+            margin-top: 10px !important; 
+            margin-bottom: 10px !important;
+            padding-bottom: env(safe-area-inset-bottom) !important; /* Respects the iPhone Home Bar */
+        }
         }
         
         .version-tracker {
@@ -984,16 +999,18 @@ function playMetronome(isDownbeat, time) {
         Adv9: { offsets: [0.75], name: "" } // The 'a'
     };
 
-    const SVGS = { 
-        Boo: `<svg viewBox="0 0 60 100" width="35"><ellipse cx="21" cy="82" rx="12" ry="8" fill="white" transform="rotate(-15, 21, 82)"/><rect x="29" y="20" width="4" height="62" fill="white"/></svg>`, 
+   const SVGS = { 
+        // Notice the new class="single-beat" added right after <svg
+        Boo: `<svg class="svg-boo" viewBox="0 0 60 100" width="35"><ellipse cx="21" cy="82" rx="12" ry="8" fill="white" transform="rotate(-15, 21, 82)"/><rect x="29" y="20" width="4" height="62" fill="white"/></svg>`, 
         
-        Nana: `<svg viewBox="0 0 80 100" width="45"><ellipse cx="16" cy="82" rx="10" ry="7" fill="white" transform="rotate(-15, 16, 82)"/><rect x="22" y="20" width="4" height="62" fill="white"/><ellipse cx="56" cy="82" rx="10" ry="7" fill="white" transform="rotate(-15, 56, 82)"/><rect x="62" y="20" width="4" height="62" fill="white"/><rect x="22" y="20" width="44" height="10" fill="white"/></svg>`, 
+        Nana: `<svg class="svg-nana" viewBox="0 0 80 100" width="45"><ellipse cx="16" cy="82" rx="10" ry="7" fill="white" transform="rotate(-15, 16, 82)"/><rect x="22" y="20" width="4" height="62" fill="white"/><ellipse cx="56" cy="82" rx="10" ry="7" fill="white" transform="rotate(-15, 56, 82)"/><rect x="62" y="20" width="4" height="62" fill="white"/><rect x="22" y="20" width="44" height="10" fill="white"/></svg>`, 
         
         Gullible: `<svg viewBox="0 0 100 100" width="55"><text x="50" y="16" fill="white" font-size="16" font-family="'Press Start 2P'" text-anchor="middle">3</text><ellipse cx="13" cy="82" rx="8" ry="6" fill="white" transform="rotate(-15, 13, 82)"/><rect x="17" y="24" width="3" height="58" fill="white"/><ellipse cx="46" cy="82" rx="8" ry="6" fill="white" transform="rotate(-15, 46, 82)"/><rect x="50" y="24" width="3" height="58" fill="white"/><ellipse cx="79" cy="82" rx="8" ry="6" fill="white" transform="rotate(-15, 79, 82)"/><rect x="83" y="24" width="3" height="58" fill="white"/><rect x="17" y="24" width="69" height="8" fill="white"/></svg>`, 
         
         LiarLiar: `<svg viewBox="0 0 100 100" width="55"><ellipse cx="11" cy="82" rx="7" ry="5" fill="white" transform="rotate(-15, 11, 82)"/><rect x="15" y="20" width="3" height="62" fill="white"/><ellipse cx="36" cy="82" rx="7" ry="5" fill="white" transform="rotate(-15, 36, 82)"/><rect x="40" y="20" width="3" height="62" fill="white"/><ellipse cx="61" cy="82" rx="7" ry="5" fill="white" transform="rotate(-15, 61, 82)"/><rect x="65" y="20" width="3" height="62" fill="white"/><ellipse cx="86" cy="82" rx="7" ry="5" fill="white" transform="rotate(-15, 86, 82)"/><rect x="90" y="20" width="3" height="62" fill="white"/><rect x="15" y="20" width="78" height="7" fill="white"/><rect x="15" y="32" width="78" height="7" fill="white"/></svg>`, 
         
-        Rest: `<svg viewBox="0 0 60 100" width="25"><path d="M15 20 L45 20 L25 45 L45 55 L25 80" stroke="#fff" stroke-width="9" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+        // Notice the new class="single-beat" added right after <svg
+        Rest: `<svg class="svg-rest" viewBox="0 0 60 100" width="25"><path d="M15 20 L45 20 L25 45 L45 55 L25 80" stroke="#fff" stroke-width="9" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
         
         Offbeat: `<svg viewBox="0 0 90 100" width="40"><path d="M20,35 Q30,28 30,40 L15,75" stroke="white" stroke-width="4" fill="none"/><circle cx="20" cy="35" r="4" fill="white"/><ellipse cx="51" cy="82" rx="10" ry="7" fill="white" transform="rotate(-15, 51, 82)"/><rect x="58" y="20" width="4" height="62" fill="white"/><path d="M 62,20 C 62,30 88,42 69,68.5 Q 67.5,71.5 70.5,68.5 C 82,55 72,40 62,36 Z" fill="white"/></svg>`,
         
@@ -1015,6 +1032,7 @@ function playMetronome(isDownbeat, time) {
 
         Adv9: `<svg viewBox="0 0 100 100" width="55"><path d="M30,35 Q40,28 40,40 L25,75" stroke="white" stroke-width="4" fill="none"/><circle cx="30" cy="35" r="4" fill="white"/><circle cx="50" cy="45" r="3" fill="white"/><ellipse cx="76" cy="82" rx="7" ry="5" fill="white" transform="rotate(-15, 76, 82)"/><rect x="80" y="20" width="3" height="62" fill="white"/><path d="M 83,20 C 83,25 96,34 89,44 Q 87.5,46 90.5,44 C 97,38 89,32 83,32 Z" fill="white"/><path d="M 83,34 C 83,40 101,52 88,68.5 Q 86.5,71 89.5,68.5 C 99,60 91,50 83,46 Z" fill="white"/></svg>`
     };
+        
     function initAudio() {
     if (!audioCtx) {
         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -1207,6 +1225,7 @@ function playMetronome(isDownbeat, time) {
                     if (endlessToggle.checked) {
                         // Stay as teacher!
                         isTeacherTurn = true; 
+                        isFirstBoot = false; // <-- ADD THIS LINE HERE!
                         // Generate a fresh pattern for the next "Teacher" round
                         generateTurnPatterns(maxMeasures, false);
                     } else {
