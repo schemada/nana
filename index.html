@@ -936,6 +936,39 @@ input[type=range] { width: 100%; accent-color: var(--primary); cursor: pointer; 
     0% { transform: scale(0.95) rotate(-1deg); opacity: 0.8; filter:blur(2px); }
     100% { transform: scale(1) rotate(0deg); opacity: 1; filter:blur(0px); }
         }
+                    /* =========================================
+           UNIFIED BUTTON FEEDBACK (TOUCH & HOVER)
+           ========================================= */
+
+        /* 1. DESKTOP HOVER (Only triggers if a mouse is used) */
+        @media (hover: hover) {
+            .rhythm-card:hover, 
+            .patch-btn:hover, 
+            #toggle-btn:hover, 
+            #lock-btn:hover, 
+            #settings-btn:hover {
+                transform: scale(1.05);
+                filter: brightness(1.1);
+                box-shadow: 0 0 15px var(--primary);
+                cursor: pointer;
+            }
+            #lock-btn.locked:hover {
+                box-shadow: 0 0 15px var(--action);
+            }
+        }
+
+        /* 2. UNIVERSAL TOUCH CRUNCH (iPhone/iPad/Android) */
+        .rhythm-card:active, .rhythm-card.pressed,
+        .patch-btn:active, .patch-btn.pressed,
+        #toggle-btn:active, #toggle-btn.pressed,
+        #lock-btn:active, #lock-btn.pressed,
+        #settings-btn:active, #settings-btn.pressed {
+            transform: scale(0.92) !important;
+            filter: brightness(0.85);
+            transition: transform 0.05s !important;
+            box-shadow: none !important; /* Kills the glow on press */
+        }
+
     </style>
 </head>
 <body>
@@ -1645,24 +1678,33 @@ function playTone(freq, time, vol = 0.2, dur = 0.1, isMetronome = false) {
 
     // THE RESCUED FUNCTION (Move this here!)
     function attachTactileFeedback(selector) {
-        const elements = document.querySelectorAll(selector);
-        
-        elements.forEach(el => {
-            el.addEventListener('pointerdown', () => {
-                // Keep the visual squish for every button
-                el.classList.add('pressed');
-                
-                // ONLY trigger the shake for the major "Entry" buttons
-                // (This excludes the toggle-btn and rhythm-cards)
+    const elements = document.querySelectorAll(selector);
+    
+    elements.forEach(el => {
+        el.addEventListener('pointerdown', () => {
+            // 1. VISUAL: Trigger the CSS 'pressed' class (squish/darken)
+            el.classList.add('pressed');
+            
+            // 2. HAPTIC & SHAKE: Physical feedback logic
+            if ("vibrate" in navigator) {
+                // Check if it's a major button (Start / Boot)
                 if (el.classList.contains('press-start') || el.classList.contains('boot-btn')) {
+                    // HEAVY: 25ms vibration + Screen Shake
+                    navigator.vibrate(25);
                     triggerShake('heavy', 'game-container');
+                } else {
+                    // LIGHT: 10ms crisp "keyboard-style" tap
+                    navigator.vibrate(10);
                 }
-            });
-
-            el.addEventListener('pointerup', () => el.classList.remove('pressed'));
-            el.addEventListener('pointerleave', () => el.classList.remove('pressed'));
+            }
         });
-    }
+
+        // 3. CLEANUP: Remove the visual squish when the touch ends or leaves
+        el.addEventListener('pointerup', () => el.classList.remove('pressed'));
+        el.addEventListener('pointerleave', () => el.classList.remove('pressed'));
+    });
+}
+
     function triggerShake(intensity = 'heavy', targetId = 'game-container') {
         const target = document.getElementById(targetId);
         if (!target) return;
@@ -1862,7 +1904,7 @@ function syncPatchButtons() {
           console.log(`%c NANA NANA BOO BOO %c ${GAME_VERSION} `, 'background:#5dade2; color:#000; font-weight:bold; padding:4px;', 'background:#1a1a2e; color:#fff; padding:4px;');
     // 1. Theme Logic
       // This activates the visuals AND the shake for everything
-    attachTactileFeedback('.press-start, #boot-btn, .rhythm-card, .patch-btn, #toggle-btn');
+    attachTactileFeedback('.press-start, #boot-btn, .rhythm-card, .patch-btn, #toggle-btn, #lock-btn, #settings-btn');
     const themeSelect = document.getElementById('theme-select');
     const savedTheme = localStorage.getItem('nana-theme');
     if (savedTheme && savedTheme !== 'default') {
