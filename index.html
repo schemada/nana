@@ -222,18 +222,22 @@
     width: 100%;
     margin: 30px 0 10px 0 !important;
 }
-        #lock-btn { 
+       #lock-btn { 
     transition: all 0.2s ease;
     position: absolute; 
     right: 0; 
-    top: -36px; /* Nudged up slightly for better breathing room */
+    top: -36px; 
     cursor: pointer; 
-    background: #1a1a30; 
-    border: 2px solid #444; 
+    background: #1a1a30; /* Your dark blue base */
+    border: 2px solid #444; /* The gray border that gives it shape */
     padding: 6px; 
-    border-radius: 4px;
-    z-index: 100; /* Ensures it stays on the top "layer" */
-        }
+    border-radius: 4px; /* The rounded arcade corner */
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
         #lock-btn.locked { border-color: var(--action); }
         /* If locked, give it an 'active' warning glow on 
         
@@ -916,35 +920,49 @@ input[type=range] { width: 100%; accent-color: var(--primary); cursor: pointer; 
 
         /* 1. DESKTOP HOVER (Only triggers if a mouse is used) */
       /* --- THE HOVER GATEKEEPER --- */
-/* This ONLY runs on desktop/laptops with a mouse */
-@media (hover: hover) {
-    #lock-btn:hover, #toggle-btn:hover, .rhythm-card:hover {
-        background: rgba(93, 173, 226, 0.15) !important;
-        border-color: var(--primary) !important;
-        box-shadow: 0 0 15px var(--primary) !important;
-        transform: scale(1.05);
-    }
-    
-    /* Specific red glow for locked state on hover */
-    #lock-btn.locked:hover {
-        background: rgba(233, 69, 96, 0.15) !important;
-        border-color: var(--action) !important;
-        box-shadow: 0 0 15px var(--action) !important;
-    }
-}
+/*         /* =================================================
+           CONSOLIDATED BUTTON GATEKEEPER (FIXES RECTANGLE)
+           ================================================= */
 
-/* --- THE UNIVERSAL PRESS --- */
-/* This runs for EVERYONE (Touch & Mouse) the moment they click */
-#lock-btn:active, #toggle-btn:active, .rhythm-card:active,
-#lock-btn.pressed, #toggle-btn.pressed, .rhythm-card.pressed {
-    transform: scale(0.92) !important;
-    filter: brightness(0.8);
-    background: rgba(255, 255, 255, 0.1) !important;
-    box-shadow: none !important; /* Kills the sticky hover glow on tap */
-}
+        /* 1. DESKTOP HOVER (Only runs if a mouse is detected) */
+        @media (hover: hover) {
+            #lock-btn:hover {
+                border-color: var(--primary);
+                background: rgba(93, 173, 226, 0.15);
+                box-shadow: 0 0 15px var(--primary);
+            }
+            #lock-btn:hover svg { fill: var(--primary) !important; }
 
-        /* 2. UNIVERSAL TOUCH CRUNCH (iPhone/iPad/Android) */
-   
+            /* Red state for locked hover */
+            #lock-btn.locked:hover {
+                border-color: var(--action);
+                background: rgba(233, 69, 96, 0.15);
+                box-shadow: 0 0 15px var(--action);
+            }
+            #lock-btn.locked:hover svg { fill: var(--action) !important; }
+        }
+
+        /* 2. MOBILE RECOVERY (Forces return to base state on tap) */
+        /* This prevents the button from staying 'blue' or 'glowy' after a touch */
+        @media (hover: none) {
+            #lock-btn:not(:active):not(.pressed) {
+                background: #1a1a30;
+                box-shadow: none;
+                border-color: #444; /* Returns to your standard gray border */
+            }
+            
+            #lock-btn.locked:not(:active):not(.pressed) {
+                border-color: var(--action); /* Keeps the red border if locked */
+            }
+        }
+
+        /* 3. UNIVERSAL PRESS (The 'Crunch') */
+        #lock-btn:active, #lock-btn.pressed {
+            transform: scale(0.92) !important;
+            filter: brightness(0.85);
+            transition: transform 0.05s !important;
+        }
+
 
     </style>
 </head>
