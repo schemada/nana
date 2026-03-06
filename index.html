@@ -37,7 +37,15 @@
         transform 0.4s ease-out,
         filter 0.4s ease-out;
 }
-        
+  /* Hard reset for iOS tap artifacts */
+#adv-toggle, 
+select, 
+.setting-row,
+.rhythm-card {
+    -webkit-tap-highlight-color: transparent !important;
+    -webkit-appearance: none;
+    outline: none !important;
+}      
         @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 /* --- THEME PALETTES WITH DYNAMIC ACCENTS --- */
 :root {
@@ -118,7 +126,7 @@
     text-transform: uppercase;
         }
         .press-start {
-            font-family: 'Press Start 2P'; font-size: 1.8rem; padding: 30px 60px;
+            font-family: 'Press Start 2P'; font-size: 1rem; padding: 15px 30px;
             background: #10ac84; color: #fff; border: 6px solid #fff; cursor: pointer;
             box-shadow: 0 12px 0 #064d3b;
         }
@@ -234,27 +242,11 @@
     border-radius: 4px;
     z-index: 100; /* Ensures it stays on the top "layer" */
 }
-        #lock-btn:hover {
-            border-color: var(--primary);
-            background: rgba(93, 173, 226, 0.15);
-            box-shadow: 0 0 15px var(--primary), inset 0 0 5px var(--primary);
-            transform: scale(1.1);
-        }
-        /* Make the SVG icon inside change color on hover too */
-        #lock-btn:hover svg {
-            fill: var(--primary) !important;
-        }
+   
         #lock-btn.locked { border-color: var(--action); }
         /* If locked, give it an 'active' warning glow on hover */
-        #lock-btn.locked:hover {
-            border-color: var(--action);
-            box-shadow: 0 0 15px var(--action), inset 0 0 5px var(--action);
-            background: rgba(233, 69, 96, 0.15);
-        }
         
-        #lock-btn.locked:hover svg {
-            fill: var(--action) !important;
-        }
+     
         #lock-btn svg { width: 16px; height: 16px; fill: #888; }
         #lock-btn.locked svg { fill: var(--action); }
         
@@ -277,7 +269,7 @@
 
     /* 2. Scale up the Title and Start Button */
     .main-title { font-size: 4.5rem; }
-    .press-start { font-size: 2.5rem; padding: 40px 80px; }
+    .art { font-size: 2.5rem; padding: 40px 80px; }
 
     /* 3. Scale the Rhythm Cards & Beat Cells */
     /* 1. GLOBAL LAYOUT (Keeps cards consistent across ALL themes) */
@@ -618,9 +610,9 @@ input[type=range] { width: 100%; accent-color: var(--primary); cursor: pointer; 
                 height: 145px; 
             }
             /* 1. DESKTOP DEFAULT */
-.beat-cell .svg-boo  { transform: scale(0.85); } /* 85% size */
-.beat-cell .svg-rest { transform: scale(0.75); } /* 75% size (Rest is thick, needs a bit more) */
-.beat-cell .svg-nana { transform: scale(0.95); } /* 95% size (Barely touched) */
+.beat-cell .svg-boo  { transform: scale(0.75); } /* 85% size */
+.beat-cell .svg-rest { transform: scale(0.65); } /* 75% size (Rest is thick, needs a bit more) */
+.beat-cell .svg-nana { transform: scale(0.80); } /* 95% size (Barely touched) */
 
         /* 2. IPAD / TABLET (601px to 1024px) */
         @media (min-width: 601px) and (max-width: 1024px) {
@@ -791,25 +783,58 @@ input[type=range] { width: 100%; accent-color: var(--primary); cursor: pointer; 
             letter-spacing: 1px;
             z-index: 10;
         }
-        
-        /* --- DESKTOP & IPAD "TIGHT CENTER" FIX --- */
-        @media (min-width: 601px) {
-            /* 1. Stop the container from pushing elements to the ceiling/floor */
-            #game-container {
-                justify-content: center !important; 
+/* 1. DESKTOP-ONLY HOVER: This only triggers with a mouse */
+        @media (hover: hover) {
+            #lock-btn:hover, #settings-btn:hover, .rhythm-card:hover, .patch-btn:hover {
+                border-color: var(--primary) !important;
+                box-shadow: 0 0 15px var(--primary) !important;
+                background: rgba(93, 173, 226, 0.15) !important;
+                transform: scale(1.05);
+                cursor: pointer;
             }
+            #lock-btn:hover svg { fill: var(--primary) !important; }
+
+            /* Red state for locked hover */
+            #lock-btn.locked:hover {
+                border-color: var(--action) !important;
+                box-shadow: 0 0 15px var(--action) !important;
+                background: rgba(233, 69, 96, 0.15) !important;
+            }
+            #lock-btn.locked:hover svg { fill: var(--action) !important; }
             
-            /* 2. Stop the measure from acting like a giant vertical sponge */
-            .measure-wrapper {
-                flex-grow: 0 !important; 
-                margin: 40px 0 !important; /* Restores the original breathing room */
+            #toggle-btn:hover {
+                transform: translateY(-2px) scale(1.02) !important;
+                box-shadow: 0 8px 0 var(--action-shadow), 0 0 15px var(--action) !important;
             }
-            
-            /* 3. Keep the footer tucked neatly right under the controls */
-            .footer-row {
-                margin-top: 30px !important; 
-                padding-bottom: 0 !important;
+        }
+
+        /* 2. UNIVERSAL PRESS: The 'Crunch' (Both Mobile & Desktop) */
+        /* This runs the millisecond a finger or mouse clicks down */
+        #lock-btn:active, #lock-btn.pressed, 
+        #toggle-btn:active, #toggle-btn.pressed,
+        .rhythm-card:active, .rhythm-card.pressed {
+            transform: scale(0.9) !important;
+            filter: brightness(1.2);
+            background: rgba(255, 255, 255, 0.1) !important;
+            box-shadow: none !important; /* Immediately kills any ghost glows */
+        }
+
+        /* 3. MOBILE SAFETY SHIELD: Force Reset */
+        @media (hover: none) {
+            /* If the button isn't being physically touched, force it to be 'Empty' */
+            #lock-btn:not(:active):not(.pressed) {
+                background: #1a1a30 !important;
+                box-shadow: none !important;
+                border-color: #444 !important;
             }
+            #lock-btn:not(:active):not(.pressed) svg { fill: #fff !important; }
+
+            /* Keep the locked state red, but NO blue hover ghosting */
+            #lock-btn.locked:not(:active):not(.pressed) {
+                border-color: var(--action) !important;
+                background: rgba(233, 69, 96, 0.1) !important;
+            }
+            #lock-btn.locked:not(:active):not(.pressed) svg { fill: var(--action) !important; }
         }
    /* =========================================
            4. LANDSCAPE / SHORT SCREEN FIX 
@@ -823,16 +848,25 @@ input[type=range] { width: 100%; accent-color: var(--primary); cursor: pointer; 
                 justify-content: center !important; 
                 animation: landscape-snap 0.5s ease-out;
             }
-
-            .sub-title, .mascot-box { 
-                display: none !important; 
-            }
-
+        #start-screen {
+        justify-content: center !important; /* Keeps items grouped in the middle */
+        padding-top: 0 !important;
+    }
             /* 1. Title stays locked at the top */
             .main-title {
-                font-size: 1rem !important;
-                margin: 0 !important;
+               font-size: 1.8rem !important; /* Tad larger than previous landscape scale */
+                margin-bottom: 5px !important;
                 line-height: 1 !important;
+            }
+             .sub-title {
+               font-size: 1rem !important; /* Tad larger than previous landscape scale */
+                margin-bottom: 0px !important;
+            }
+            .mascot-box {
+                /* Shrink the ASCII mascot so it doesn't eat the whole screen */
+                font-size: 4px !important; 
+                margin-bottom: 10px !important;
+                transform: scale(0.8);
             }
 
             /* 2. NUDGE UP: Banner (3 arrow keys up) */
@@ -844,7 +878,9 @@ input[type=range] { width: 100%; accent-color: var(--primary); cursor: pointer; 
                 letter-spacing: 1px !important;
                 line-height: 1 !important;
             }
-
+            .beat-cell .svg-boo  { transform: scale(0.65); }
+            .beat-cell .svg-rest { transform: scale(0.65); }
+            .beat-cell .svg-nana { transform: scale(0.85); }
             /* 3. NUDGE UP: Measure Wrapper (2 arrow keys up) */
             .measure-wrapper {
                 /* Pulls the beat cells closer to the banner */
@@ -885,28 +921,46 @@ input[type=range] { width: 100%; accent-color: var(--primary); cursor: pointer; 
                 margin-top: 6px !important; /* The "2-key" downward nudge */
             }
 
-            .rhythm-card {
-                height: 48px !important; 
-                min-width: 45px !important;
+           .rhythm-card {
+                height: 52px !important; /* Shrunk from too big, but larger than the old tiny version */
+                min-width: 50px !important;
+                padding: 4px !important;
+                gap: 1px !important;
             }
-            .rhythm-card svg {
-                height: 24px !important;
+           .rhythm-card svg {
+                height: 30px !important; /* Slightly smaller to fit the new card height */
+                width: auto !important;
             }
-            
+            .rhythm-card div:last-child {
+             font-size: 5px !important; /* Micro-text for landscape */
+                line-height: 1;
+                margin-top: 0 !important;
+            }
+            /* 2. Advanced Cards (Readability Boost) */
+            /* We increase their footprint so the icons aren't microscopic */
             .picker-container:has(.rhythm-card:nth-child(6)) .rhythm-card {
-                height: 42px !important; 
+                height: 46px !important; /* Boosted from 42px */
+                flex: 1 1 calc(20% - 6px) !important; /* Keeps 5 across but gives them more "meat" */
+                min-width: 58px !important; 
             }
+    
             .picker-container:has(.rhythm-card:nth-child(6)) .rhythm-card svg {
-                height: 18px !important;
+             height: 26px !important; /* Increased for readability */
+                max-width: 90% !important;
             }
 
             /* 7. Action Buttons & Footer (Clamped tight) */
-            .press-start, .boot-btn, #toggle-btn {
+           #toggle-btn {
                 padding: 8px 20px !important; 
                 font-size: 0.9rem !important;
                 /* Increased height makes it much easier to hit in landscape */
                 min-height: 38px !important;
             }
+            press-start, .boot-btn {
+        margin-top: -15px !important; /* Pulls the button closer to the title group */
+                min-height: 35px !important;
+                font-size: 0.9rem !important;
+    }
 /* 1. Shrink the Sound Patch buttons (The "Givers") */
             .patch-btn {
                 padding: 4px 8px !important; /* Thinner vertical profile */
