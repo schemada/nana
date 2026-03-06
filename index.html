@@ -233,28 +233,11 @@
     padding: 6px; 
     border-radius: 4px;
     z-index: 100; /* Ensures it stays on the top "layer" */
-}
-        #lock-btn:hover {
-            border-color: var(--primary);
-            background: rgba(93, 173, 226, 0.15);
-            box-shadow: 0 0 15px var(--primary), inset 0 0 5px var(--primary);
-            transform: scale(1.1);
-        }
-        /* Make the SVG icon inside change color on hover too */
-        #lock-btn:hover svg {
-            fill: var(--primary) !important;
         }
         #lock-btn.locked { border-color: var(--action); }
-        /* If locked, give it an 'active' warning glow on hover */
-        #lock-btn.locked:hover {
-            border-color: var(--action);
-            box-shadow: 0 0 15px var(--action), inset 0 0 5px var(--action);
-            background: rgba(233, 69, 96, 0.15);
-        }
+        /* If locked, give it an 'active' warning glow on 
         
-        #lock-btn.locked:hover svg {
-            fill: var(--action) !important;
-        }
+       
         #lock-btn svg { width: 16px; height: 16px; fill: #888; }
         #lock-btn.locked svg { fill: var(--action); }
         
@@ -395,11 +378,6 @@
             transition: none !important; 
         }
 /* Desktop Hover */
-#settings-btn:hover {
-    opacity: 1;
-    filter: drop-shadow(0 0 8px var(--primary));
-    transform: translateY(-50%) scale(1.1); /* Slight grow instead of spin */
-}
 /* Forcefully kill any lingering active states */
         #settings-btn:active, 
         #settings-btn.pressed {
@@ -444,11 +422,7 @@ input[type=range] { width: 100%; accent-color: var(--primary); cursor: pointer; 
 }
 
 /* 2. Dynamic Theme Colors for Start/Stop Toggle */
-#toggle-btn:hover {
-    transform: translateY(-2px) scale(1.02) !important;
-    box-shadow: 0 8px 0 var(--action-shadow), 
-                0 0 15px var(--action) !important;
-}
+
 
 /* --- 3. PRESSED 'CRUNCH' STATES --- */
 #boot-btn.pressed {
@@ -941,33 +915,36 @@ input[type=range] { width: 100%; accent-color: var(--primary); cursor: pointer; 
            ========================================= */
 
         /* 1. DESKTOP HOVER (Only triggers if a mouse is used) */
-        @media (hover: hover) {
-            .rhythm-card:hover, 
-            .patch-btn:hover, 
-            #toggle-btn:hover, 
-            #lock-btn:hover, 
-            #settings-btn:hover {
-                transform: scale(1.05);
-                filter: brightness(1.1);
-                box-shadow: 0 0 15px var(--primary);
-                cursor: pointer;
-            }
-            #lock-btn.locked:hover {
-                box-shadow: 0 0 15px var(--action);
-            }
-        }
+      /* --- THE HOVER GATEKEEPER --- */
+/* This ONLY runs on desktop/laptops with a mouse */
+@media (hover: hover) {
+    #lock-btn:hover, #toggle-btn:hover, .rhythm-card:hover {
+        background: rgba(93, 173, 226, 0.15) !important;
+        border-color: var(--primary) !important;
+        box-shadow: 0 0 15px var(--primary) !important;
+        transform: scale(1.05);
+    }
+    
+    /* Specific red glow for locked state on hover */
+    #lock-btn.locked:hover {
+        background: rgba(233, 69, 96, 0.15) !important;
+        border-color: var(--action) !important;
+        box-shadow: 0 0 15px var(--action) !important;
+    }
+}
+
+/* --- THE UNIVERSAL PRESS --- */
+/* This runs for EVERYONE (Touch & Mouse) the moment they click */
+#lock-btn:active, #toggle-btn:active, .rhythm-card:active,
+#lock-btn.pressed, #toggle-btn.pressed, .rhythm-card.pressed {
+    transform: scale(0.92) !important;
+    filter: brightness(0.8);
+    background: rgba(255, 255, 255, 0.1) !important;
+    box-shadow: none !important; /* Kills the sticky hover glow on tap */
+}
 
         /* 2. UNIVERSAL TOUCH CRUNCH (iPhone/iPad/Android) */
-        .rhythm-card:active, .rhythm-card.pressed,
-        .patch-btn:active, .patch-btn.pressed,
-        #toggle-btn:active, #toggle-btn.pressed,
-        #lock-btn:active, #lock-btn.pressed,
-        #settings-btn:active, #settings-btn.pressed {
-            transform: scale(0.92) !important;
-            filter: brightness(0.85);
-            transition: transform 0.05s !important;
-            box-shadow: none !important; /* Kills the glow on press */
-        }
+   
 
     </style>
 </head>
