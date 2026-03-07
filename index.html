@@ -7,6 +7,10 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="NANA NANA">
     <meta name="theme-color" content="#08081a">
+    <meta property="og:title" content="NANA NANA BOO BOO // RHYTHM ARCADE">
+<meta property="og:description" content="The ultimate web-based rhythm trainer. Watch, Listen Clap to the beats. Lock the rhythm, and level up.">
+<meta property="og:image" content="https://nananana.app/icon1.png"> <meta property="og:url" content="https://nananana.app">
+<meta name="description" content="A free, web arcade rhythm trainer that works on any phone, tablet, or computer. Just hit the link, add it to your home screen, and start clappin' along..">    
     <link rel="icon" type="image/png" href="icon1.png">
 
 <link rel="apple-touch-icon" href="icon1.png">
@@ -39,7 +43,8 @@
 }
   /* Hard reset for iOS tap artifacts */
 #adv-toggle, 
-select, 
+select,
+button,
 .setting-row,
 .rhythm-card {
     -webkit-tap-highlight-color: transparent !important;
@@ -262,10 +267,7 @@ select,
             text-align: center;
             cursor: pointer;
         }
-        .support-link:hover {
-            opacity: 1;
-            color: var(--banana-gold);
-        }
+        
 
     /* 2. Scale up the Title and Start Button */
     .main-title { font-size: 4.5rem; }
@@ -387,11 +389,7 @@ select,
             transition: none !important; 
         }
 /* Desktop Hover */
-#settings-btn:hover {
-    opacity: 1;
-    filter: drop-shadow(0 0 8px var(--primary));
-    transform: translateY(-50%) scale(1.1); /* Slight grow instead of spin */
-}
+
 /* Forcefully kill any lingering active states */
         #settings-btn:active, 
         #settings-btn.pressed {
@@ -430,17 +428,6 @@ input[type=range] { width: 100%; accent-color: var(--primary); cursor: pointer; 
 }
 /* --- 1. BOOT SYSTEM BUTTON (Flat Neon - Splash Screen) --- */
 /* 1. Static Green for Boot Button */
-#boot-btn:hover {
-    transform: scale(1.05) !important;
-    box-shadow: 0 0 20px var(--student) !important;
-}
-
-/* 2. Dynamic Theme Colors for Start/Stop Toggle */
-#toggle-btn:hover {
-    transform: translateY(-2px) scale(1.02) !important;
-    box-shadow: 0 8px 0 var(--action-shadow), 
-                0 0 15px var(--action) !important;
-}
 
 /* --- 3. PRESSED 'CRUNCH' STATES --- */
 #boot-btn.pressed {
@@ -536,6 +523,7 @@ input[type=range] { width: 100%; accent-color: var(--primary); cursor: pointer; 
     --bg-glow: #4a0e5e;
     --card-bg: #1a0624;
 }
+        
         /* --- THE VIGNETTE OVERLAY --- */
 .vignette {
     position: fixed;
@@ -609,6 +597,17 @@ input[type=range] { width: 100%; accent-color: var(--primary); cursor: pointer; 
                 width: 110px; 
                 height: 145px; 
             }
+            /* Desktop Sound Reminder Scaling */
+            .sound-reminder {
+                font-size: 2rem !important;
+                margin-top: 65px !important;
+                gap: 50px !important;
+                        transform: scale(1.5);
+            }
+            .sound-reminder svg {
+                width: 28px !important;
+                height: 28px !important;
+            }
             /* 1. DESKTOP DEFAULT */
 .beat-cell .svg-boo  { transform: scale(0.75); } /* 85% size */
 .beat-cell .svg-rest { transform: scale(0.65); } /* 75% size (Rest is thick, needs a bit more) */
@@ -625,6 +624,16 @@ input[type=range] { width: 100%; accent-color: var(--primary); cursor: pointer; 
             .press-start, .boot-btn { 
                 font-size: 1.5rem; 
                 padding: 25px 50px; 
+            }
+            /* iPad Portrait Sound Reminder */
+            .sound-reminder {
+                font-size: 1rem !important;
+                margin-top: 45px !important; /* Pushes it further down from the start button */
+                gap: 12px !important;
+            }
+            .sound-reminder svg {
+                width: 24px !important;
+                height: 24px !important;
             }
             .rhythm-card { 
                 width: 85px; 
@@ -768,6 +777,16 @@ input[type=range] { width: 100%; accent-color: var(--primary); cursor: pointer; 
                 height: 32px; 
             }
         }
+        .sound-reminder {
+                opacity: 0.7 !important;
+                margin-top: 10px !important;
+                font-size: 0.5rem !important;
+            }
+            .sound-reminder svg {
+                margin-bottom: -1px !important;
+                width: 12px !important;
+                height: 12px !important;
+            }
         /* =========================================
            GLOBAL FLOATING ELEMENTS
            ========================================= */
@@ -806,6 +825,10 @@ input[type=range] { width: 100%; accent-color: var(--primary); cursor: pointer; 
                 transform: translateY(-2px) scale(1.02) !important;
                 box-shadow: 0 8px 0 var(--action-shadow), 0 0 15px var(--action) !important;
             }
+            .support-link:hover {
+            opacity: 1;
+            color: var(--banana-gold);
+        }
         }
 
         /* 2. UNIVERSAL PRESS: The 'Crunch' (Both Mobile & Desktop) */
@@ -836,7 +859,7 @@ input[type=range] { width: 100%; accent-color: var(--primary); cursor: pointer; 
             }
             #lock-btn.locked:not(:active):not(.pressed) svg { fill: var(--action) !important; }
         }
-   /* =========================================
+  /* =========================================
            4. LANDSCAPE / SHORT SCREEN FIX 
            (Final Optical "Nudge" Alignment)
            ========================================= */
@@ -848,42 +871,80 @@ input[type=range] { width: 100%; accent-color: var(--primary); cursor: pointer; 
                 justify-content: center !important; 
                 animation: landscape-snap 0.5s ease-out;
             }
-        #start-screen {
-        justify-content: center !important; /* Keeps items grouped in the middle */
-        padding-top: 0 !important;
-    }
-            /* 1. Title stays locked at the top */
-            .main-title {
-               font-size: 1.8rem !important; /* Tad larger than previous landscape scale */
-                margin-bottom: 5px !important;
-                line-height: 1 !important;
+
+      #start-screen {
+                justify-content: center !important; 
+                padding-top: 0 !important;
+                gap: 12px !important; /* The ONLY thing controlling spacing */
             }
-             .sub-title {
-               font-size: 1rem !important; /* Tad larger than previous landscape scale */
-                margin-bottom: 0px !important;
+/* The Wrapper that holds both Titles */
+            .title-group {
+                /* DRAGS THE TITLES WAY UP INTO THE BANANA */
+                margin: -35px 0 0 0 !important; 
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                transform: scale(0.65);
+                /* Forces the group to shrink UPWARD instead of from the center */
+                transform-origin: top center; 
+                gap: 4px !important; 
             }
-            .mascot-box {
-                /* Shrink the ASCII mascot so it doesn't eat the whole screen */
-                font-size: 4px !important; 
-                margin-bottom: 10px !important;
-                transform: scale(0.8);
+        .main-title {
+                font-size: 1rem !important; /* Native size, no scale() needed */
+                margin: -17px !important; 
+                line-height: 0.9 !important;
+                transform: none !important; 
             }
 
-            /* 2. NUDGE UP: Banner (3 arrow keys up) */
+            .sub-title {
+                font-size: 0.55rem !important; 
+                margin: 0 !important; 
+                letter-spacing: 3px !important;
+                transform: none !important;
+            }
+
+          .mascot-box {
+                font-size: 4px !important; 
+                margin: -74px !important; 
+              line-height: 1 !important;
+                /* Mascot is the only thing allowed to scale because of ASCII limitations */
+                transform: scale(0.6) !important;
+            }
+
+         .press-start, .boot-btn {
+                /* DRAGS THE BUTTON WAY UP TO MEET THE SHRUNKEN TITLES */
+                margin: -10px 0 0 0 !important; 
+                padding: 10px 30px !important;
+                font-size: 0.8rem !important;
+                min-height: 36px !important;
+                border-width: 3px !important;
+            }
+      .sound-reminder {
+                /* Hugs the button tightly */
+                margin: 6px 0 0 0 !important; 
+                font-size: 0.55rem !important;
+                gap: 6px !important; 
+            }
+
+            .sound-reminder svg {
+                width: 12px !important; 
+                height: 12px !important;
+            }
+            /* 2. NUDGE UP: Banner */
             .state-banner, #state-display {
                 font-size: 0.8rem !important;
                 padding: 2px 10px !important;
-                /* Negative margin "pulls" it up toward the title */
                 margin: -7px 0 0 0 !important; 
                 letter-spacing: 1px !important;
                 line-height: 1 !important;
             }
+
             .beat-cell .svg-boo  { transform: scale(0.65); }
             .beat-cell .svg-rest { transform: scale(0.65); }
             .beat-cell .svg-nana { transform: scale(0.85); }
-            /* 3. NUDGE UP: Measure Wrapper (2 arrow keys up) */
+
+            /* 3. NUDGE UP: Measure Wrapper */
             .measure-wrapper {
-                /* Pulls the beat cells closer to the banner */
                 margin: -4px 0 0 0 !important; 
             }
             .beat-cell {
@@ -893,102 +954,197 @@ input[type=range] { width: 100%; accent-color: var(--primary); cursor: pointer; 
                 width: 24px; 
             }
             .tempo-val, .rank-label {
-                font-size: 0.6rem !important; /* Shrunk from standard size */
+                font-size: 0.6rem !important; 
                 letter-spacing: 1px !important;
                 margin-bottom: 2px !important;
-                opacity: 0.8; /* Makes it look cleaner/more 'pro' in tight spaces */
+                opacity: 0.8; 
             }
-            /* 4. NUDGE UP: Lightbar (1 arrow key up) */
+
+            /* 4. NUDGE UP: Lightbar */
             #central-light {
-                /* Switching from 'auto' to a fixed 4px margin pulls the 
-                   entire bottom cluster up toward the measure */
                 margin: 4px auto 0px auto !important; 
                 height: 4px !important; 
                 width: 100% !important;
             }
 
-            /* 5. NUDGE UP: Controls & Footer (1 arrow key up) */
+            /* 5. NUDGE UP: Controls & Footer */
             .controls {
                 padding: 4px 8px !important;
-                margin-top: 0px !important; /* Already hugging the lightbar */
+                margin-top: 0px !important; 
                 margin-bottom: 0px !important;
             }
 
-            /* 6. NUDGE DOWN: Rhythm Cards (2 arrow keys down) 
-               We add a margin to the container inside the controls box */
+            /* 6. NUDGE DOWN: Rhythm Cards */
             .picker-container {
                 gap: 4px;
-                margin-top: 6px !important; /* The "2-key" downward nudge */
+                margin-top: 6px !important; 
             }
 
-           .rhythm-card {
-                height: 52px !important; /* Shrunk from too big, but larger than the old tiny version */
+            .rhythm-card {
+                height: 52px !important; 
                 min-width: 50px !important;
                 padding: 4px !important;
                 gap: 1px !important;
             }
-           .rhythm-card svg {
-                height: 30px !important; /* Slightly smaller to fit the new card height */
+            .rhythm-card svg {
+                height: 30px !important; 
                 width: auto !important;
             }
             .rhythm-card div:last-child {
-             font-size: 5px !important; /* Micro-text for landscape */
+                font-size: 5px !important; 
                 line-height: 1;
                 margin-top: 0 !important;
             }
-            /* 2. Advanced Cards (Readability Boost) */
-            /* We increase their footprint so the icons aren't microscopic */
+
+            /* Advanced Cards */
             .picker-container:has(.rhythm-card:nth-child(6)) .rhythm-card {
-                height: 46px !important; /* Boosted from 42px */
-                flex: 1 1 calc(20% - 6px) !important; /* Keeps 5 across but gives them more "meat" */
+                height: 46px !important; 
+                flex: 1 1 calc(20% - 6px) !important; 
                 min-width: 58px !important; 
             }
-    
             .picker-container:has(.rhythm-card:nth-child(6)) .rhythm-card svg {
-             height: 26px !important; /* Increased for readability */
+                height: 26px !important; 
                 max-width: 90% !important;
             }
 
-            /* 7. Action Buttons & Footer (Clamped tight) */
-           #toggle-btn {
+            /* 7. Action Buttons & Footer */
+            #toggle-btn {
                 padding: 8px 20px !important; 
                 font-size: 0.9rem !important;
-                /* Increased height makes it much easier to hit in landscape */
                 min-height: 38px !important;
             }
-            press-start, .boot-btn {
-        margin-top: -15px !important; /* Pulls the button closer to the title group */
-                min-height: 35px !important;
-                font-size: 0.9rem !important;
-    }
-/* 1. Shrink the Sound Patch buttons (The "Givers") */
             .patch-btn {
-                padding: 4px 8px !important; /* Thinner vertical profile */
+                padding: 4px 8px !important; 
                 font-size: 0.65rem !important;
                 min-width: 50px !important;
                 height: auto !important;
             }
-
             .patch-row {
-                gap: 4px !important; /* Tighter grouping */
+                gap: 4px !important; 
                 margin-top: 2px !important;
             }
             .footer-row {
                 margin-top: 0px !important;
             }
             .support-link {
-                font-size: 6px !important; /* Shrunk from 8px */
-                letter-spacing: 0.5px !important; /* Tightens the horizontal footprint */
+                font-size: 6px !important; 
+                letter-spacing: 0.5px !important; 
                 margin: 0 !important;
                 padding-bottom: 0 !important; 
-                opacity: 0.7; /* Softens it slightly so it doesn't compete for attention */
+                opacity: 0.7; 
             }
             #settings-btn {
                 padding: 2px !important; 
             }
-            @keyframes landscape-snap {
-    0% { transform: scale(0.95) rotate(-1deg); opacity: 0.8; filter:blur(2px); }
-    100% { transform: scale(1) rotate(0deg); opacity: 1; filter:blur(0px); }
+        } /* <--- THIS BRACKET WAS MISSING! IT CLOSES THE IPHONE LANDSCAPE QUERY */
+
+
+        /* =========================================
+           IPAD LANDSCAPE STABILITY (768px - 1366px)
+           ========================================= */
+        @media (min-width: 768px) and (max-height: 1024px) and (orientation: landscape) {
+            
+            #game-container {
+                padding-top: 20px !important;
+                justify-content: center !important; 
+            }
+
+            #start-screen {
+                justify-content: center !important; 
+                padding-top: 5px !important;
+                gap: 0 !important; 
+            }
+
+            .main-title {
+                font-size: 3.2rem !important; 
+                margin-bottom: 30px !important;
+                line-height: 0.9 !important;
+            }
+
+            .sub-title {
+                font-size: 0.85rem !important; 
+                margin: 2px 0 8px 0 !important;
+                letter-spacing: 3px !important;
+            }
+
+            .mascot-box {
+                font-size: 4.5px !important; 
+                margin-bottom: 2px !important;
+                translateY(10px) !important; 
+            }
+
+            .press-start, .boot-btn { /* FIXED MISSING DOT HERE TOO */
+                margin-top: -20px !important; 
+                padding: 15px 40px !important;
+                font-size: 1.2rem !important;
+                min-height: 45px !important;
+                border-width: 3px !important;
+            }
+            /* iPad Landscape Sound Reminder */
+            .sound-reminder {
+                font-size: 0.8rem !important;
+                margin-top: 15px !important;
+                scale: 0.7;/* Pushed away from the start button */
+                gap: 12px !important;
+            }
+            .sound-reminder svg {
+                width: 24px !important;
+                height: 24px !important;
+                        margin-bottom: -4px;
+            }
+
+            .beat-cell {
+                height: 110px !important; 
+            }
+            .beat-cell svg {
+                width: 50px !important;
+            }
+
+            .controls {
+                padding: 20px !important;
+                margin-top: 15px !important;
+            }
+
+            .rhythm-card {
+                height: 90px !important; 
+                min-width: 80px !important;
+                padding: 10px !important;
+                gap: 5px !important;
+            }
+            .rhythm-card svg {
+                height: 45px !important;
+            }
+            .rhythm-card div:last-child {
+                font-size: 8px !important; 
+                margin-top: 4px !important;
+            }
+
+            .picker-container:has(.rhythm-card:nth-child(6)) .rhythm-card {
+                height: 80px !important;
+                flex: 1 1 calc(16% - 10px) !important; 
+                min-width: 90px !important;
+            }
+            .picker-container:has(.rhythm-card:nth-child(6)) .rhythm-card svg {
+                height: 40px !important;
+            }
+
+            .footer-row {
+                margin-top: 15px !important;
+            }
+            .support-link {
+                font-size: 10px !important;
+                opacity: 0.6;
+            }
+            #settings-btn {
+                padding: 10px !important;
+                transform: translateY(-50%) scale(1.2) !important;
+            }
+        }
+
+        /* Landscape Animation mapped globally so both iPhone and iPad can use it */
+        @keyframes landscape-snap {
+            0% { transform: scale(0.95) rotate(-1deg); opacity: 0.8; filter:blur(2px); }
+            100% { transform: scale(1) rotate(0deg); opacity: 1; filter:blur(0px); }
         }
     </style>
 </head>
@@ -1053,6 +1209,12 @@ input[type=range] { width: 100%; accent-color: var(--primary); cursor: pointer; 
             <div class="sub-title">RHYTHM ARCADE</div>
         </div>
         <button class="press-start" id="boot-btn">START GAME</button>
+        <div class="sound-reminder">
+    <svg viewBox="0 0 24 24" fill="currentColor">
+        <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+    </svg>
+    <span>REMINDER: SOUNDS ON</span>
+</div>
             <div id="version-display" class="version-tracker"></div>
     </div>
 
