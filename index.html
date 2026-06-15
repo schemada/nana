@@ -1570,6 +1570,7 @@ function playMetronome(isDownbeat, time) {
                 tempHistory.push(adaptedMeasure);
             } else {
                 let newMeasure = []; 
+                // --- THE FIX: Removed 'cards.length === 2' so they just need to be in the mix ---
                 if (isFirstBoot && m === 0 && cards.includes("Nana") && cards.includes("Boo")) {
                     newMeasure = ["Nana", "Nana", "Boo", "Boo"];
                     if (newMeasure.length > beatsPerMeasure) newMeasure = newMeasure.slice(0, beatsPerMeasure);
@@ -1827,26 +1828,17 @@ function playTone(freq, time, vol = 0.2, dur = 0.1, isMetronome = false) {
         }
     }
         
+    
     function triggerLight(time) {
         const delay = Math.max(0, (time - audioCtx.currentTime) * 1000);
         setTimeout(() => {
+            // --- THE KILL SWITCH: Abort if stop was pressed while this was waiting in the queue! ---
+            if (!isRunning) return; 
+            
             const lightEl = document.getElementById('central-light');
             if (lightEl) {
                 lightEl.style.backgroundColor = "var(--teacher)"; 
-                lightEl.classList.remove('light-flash'); void lightEl.offsetWidth; lightEl.classList.add('light-flash');
-            }
-        }, delay);
-    }
-
-    function triggerLight(time) {
-        const delay = Math.max(0, (time - audioCtx.currentTime) * 1000);
-        setTimeout(() => {
-            const lightEl = document.getElementById('central-light');
-            if (lightEl) {
-                // Add this line to force the Teacher Orange color
-                lightEl.style.backgroundColor = "var(--teacher)"; 
-                
-                lightEl.classList.remove('light-flash');
+                lightEl.classList.remove('light-flash'); 
                 void lightEl.offsetWidth; 
                 lightEl.classList.add('light-flash');
             }
@@ -1940,12 +1932,15 @@ function playTone(freq, time, vol = 0.2, dur = 0.1, isMetronome = false) {
             const selected = Array.from(document.querySelectorAll('.rhythm-card.selected')).map(c => c.dataset.type);
             if (selected.length === 0) return;
             
-            // --- THE SYNC FIX: Regenerate the pattern based on CURRENT selections ---
-            // This overwrites the queued "Nana Boo" pattern if you deselected them before hitting start!
+           // --- THE SYNC FIX: Regenerate the pattern based on CURRENT selections ---
             const ts = document.getElementById('trade-select');
             let currentMode = tradeMode === "solo" ? "solo" : (ts ? ts.value : "1");
             let initialMeasures = currentMode === "solo" ? 1 : parseInt(currentMode);
+            
             generateTurnPatterns(initialMeasures);
+            
+            // --- THE FIX: Instantly kill the first boot flag the moment they hit start! ---
+            isFirstBoot = false;
             // ----------------------------------------------------------------------
 
             const now = audioCtx.currentTime;
@@ -1961,14 +1956,22 @@ function playTone(freq, time, vol = 0.2, dur = 0.1, isMetronome = false) {
             toggleBtn.innerText = "STOP"; 
             schedule();
         } else {
-        // --- THE FIX: Fade out correctly ---
-        const now = audioCtx.currentTime;
-        masterVolumeNode.gain.setValueAtTime(1, now); 
-        masterVolumeNode.gain.linearRampToValueAtTime(0, now + 0.02);
-        
-        isRunning = false; 
-        toggleBtn.innerText = "START"; 
-    }
+            // --- THE FIX: Fade out correctly ---
+            const now = audioCtx.currentTime;
+            masterVolumeNode.gain.setValueAtTime(1, now); 
+            masterVolumeNode.gain.linearRampToValueAtTime(0, now + 0.02);
+            
+            isRunning = false; 
+            toggleBtn.innerText = "START"; 
+
+            // --- NEW: Snappy Lightbar Stop ---
+            const lightEl = document.getElementById('central-light');
+            if (lightEl) {
+                lightEl.classList.remove('light-flash');
+                lightEl.style.backgroundColor = "white"; // Resets it to its default dormant state
+                lightEl.style.boxShadow = "none"; // Instantly kills any lingering glow
+            }
+        }
 };
 
     document.addEventListener('visibilitychange', () => {
