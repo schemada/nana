@@ -581,6 +581,19 @@ input[type=range] { width: 100%; accent-color: var(--primary); cursor: pointer; 
     text-align: center;
     margin-top: 30px; /* The default Desktop breathing room */
 }
+/* --- DRAG AND DROP GLOW --- */
+        .beat-cell.drop-target {
+            border-color: #ffffff !important;
+            box-shadow: 0 0 15px #ffffff, inset 0 0 10px #ffffff !important;
+            transform: scale(1.05);
+            /* Makes it pulse slightly to invite the drop */
+            animation: neonPulse 1s infinite alternate; 
+        }
+
+        /* Only blocks the browser from hijacking these specific elements */
+.rhythm-card, .beat-cell {
+    touch-action: none; 
+}
 
         /* =========================================
            RESPONSIVE SIZING & DEVICE QUERIES
@@ -1328,7 +1341,7 @@ input[type=range] { width: 100%; accent-color: var(--primary); cursor: pointer; 
     </div>
     <script>
     // --- APP CONFIG --- Updade Game Version Here
-    const GAME_VERSION = "v1.2.0";
+    const GAME_VERSION = "v1.1.0";
         // Unlocks CSS :active states on iOS Safari
     document.body.addEventListener('touchstart', function() {}, {passive: true});
     let audioCtx, masterGain, compressor,masterVolumeNode;
@@ -1536,8 +1549,39 @@ function playMetronome(isDownbeat, time) {
 }
     patchBtns.forEach(btn => { btn.onclick = () => { patchBtns.forEach(b => b.classList.remove('active')); btn.classList.add('active'); soundType = btn.dataset.patch; initAudio(); }; });
     lockBtn.onclick = () => { isLocked = !isLocked; lockBtn.classList.toggle('locked', isLocked); lockIcon.innerHTML = isLocked ? `<path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/>` : `<path d="M12 17c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm6-9h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6h1.9c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm0 12H6V10h12v10z"/>`; initAudio(); };
-    Object.keys(RHYTHM_CONFIG).forEach(key => { const card = document.createElement('div'); const isDefault = (key === 'Boo' || key === 'Nana'); card.className = `rhythm-card ${isDefault ? 'selected' : ''}`; card.dataset.type = key; const label = RHYTHM_CONFIG[key].name ? `<div style="font-size:6px;">${RHYTHM_CONFIG[key].name}</div>` : ''; card.innerHTML = SVGS[key] + label; card.onclick = () => {card.classList.toggle('selected'); initAudio(); }; if (RHYTHM_CONFIG[key].name && key !== 'Offbeat') { document.getElementById('picker-basic').appendChild(card); } else { document.getElementById('picker-adv').appendChild(card); } });
-    
+   Object.keys(RHYTHM_CONFIG).forEach(key => { 
+        const card = document.createElement('div'); 
+        const isDefault = (key === 'Boo' || key === 'Nana'); 
+        card.className = `rhythm-card ${isDefault ? 'selected' : ''}`; 
+        card.dataset.type = key; 
+        const label = RHYTHM_CONFIG[key].name ? `<div style="font-size:6px;">${RHYTHM_CONFIG[key].name}</div>` : ''; 
+        card.innerHTML = SVGS[key] + label; 
+        
+        // --- EXISTING: Desktop Drag and Drop ---
+        card.draggable = true;
+        card.addEventListener('dragstart', (e) => {
+            e.dataTransfer.setData('text/plain', key);
+            card.style.opacity = '0.4'; 
+        });
+        card.addEventListener('dragend', (e) => {
+            card.style.opacity = '1'; 
+        });
+
+        // --- NEW: Mobile Touch Drag and Drop ---
+        // { passive: false } is required so we can tell iOS Safari NOT to scroll the page
+        card.addEventListener('touchstart', handleTouchStart, { passive: true });
+        card.addEventListener('touchmove', handleTouchMove, { passive: false });
+        card.addEventListener('touchend', handleTouchEnd);
+
+        card.onclick = () => {card.classList.toggle('selected'); initAudio(); };
+
+        card.onclick = () => {card.classList.toggle('selected'); initAudio(); }; 
+        if (RHYTHM_CONFIG[key].name && key !== 'Offbeat') { 
+            document.getElementById('picker-basic').appendChild(card); 
+        } else { 
+            document.getElementById('picker-adv').appendChild(card); 
+        } 
+    });
     // UPDATED: Advanced Panel Toggle
     document.getElementById('adv-toggle').onclick = function() { 
         const panel = document.getElementById('picker-adv'); 
@@ -1547,6 +1591,104 @@ function playMetronome(isDownbeat, time) {
         sigPanel.style.display = isHidden ? 'block' : 'none';
         this.innerText = isHidden ? '[-] HIDE ADVANCED' : '[+] SHOW ADVANCED'; 
     };
+// --- MOBILE TOUCH DRAG ENGINE ---
+    let touchGhost = null;
+    let draggedRhythmType = null;
+    let currentDropTarget = null;
+    let touchStartX = 0;
+    let touchStartY = 0;
+    let isDragging = false;
+
+    function handleTouchStart(e) {
+        const touch = e.touches[0];
+        touchStartX = touch.clientX;
+        touchStartY = touch.clientY;
+        draggedRhythmType = this.dataset.type;
+        isDragging = false;
+    }
+
+    function handleTouchMove(e) {
+        if (!draggedRhythmType) return;
+        const touch = e.touches[0];
+        
+        // 1. Distinguish between a tap and a drag
+        if (!isDragging) {
+            const dx = touch.clientX - touchStartX;
+            const dy = touch.clientY - touchStartY;
+            if (Math.abs(dx) > 10 || Math.abs(dy) > 10) {
+                isDragging = true;
+                
+                touchGhost = this.cloneNode(true);
+                touchGhost.style.position = 'fixed';
+                touchGhost.style.pointerEvents = 'none';
+                touchGhost.style.zIndex = '9999';
+                touchGhost.style.opacity = '0.8';
+                touchGhost.style.margin = '0';
+                
+                const rect = this.getBoundingClientRect();
+                touchGhost.style.width = rect.width + 'px';
+                touchGhost.style.height = rect.height + 'px';
+                
+                document.body.appendChild(touchGhost);
+                this.style.opacity = '0.4';
+            }
+        }
+
+        // 2. Drag Active
+        if (isDragging) {
+            // This prevents the page scroll ONLY when the ghost exists
+            e.preventDefault(); 
+            
+            touchGhost.style.left = (touch.clientX - touchGhost.offsetWidth / 2) + 'px';
+            touchGhost.style.top = (touch.clientY - touchGhost.offsetHeight / 2) + 'px';
+
+            const elemBelow = document.elementFromPoint(touch.clientX, touch.clientY);
+            const cellBelow = elemBelow ? elemBelow.closest('.beat-cell') : null;
+
+            if (currentDropTarget !== cellBelow) {
+                if (currentDropTarget) currentDropTarget.classList.remove('drop-target');
+                if (cellBelow) cellBelow.classList.add('drop-target');
+                currentDropTarget = cellBelow;
+            }
+        }
+    }
+
+    function handleTouchEnd(e) {
+        if (isDragging && touchGhost) {
+            this.style.opacity = '1';
+            touchGhost.remove();
+            touchGhost = null;
+
+            // If we dropped it on a valid cell, execute the drop!
+            if (currentDropTarget) {
+                currentDropTarget.classList.remove('drop-target');
+                
+                // Extract the measure and beat index directly from the cell's ID
+                const parts = currentDropTarget.id.split('-');
+                if(parts.length === 4) {
+                    const mIdx = parseInt(parts[2]);
+                    const bIdx = parseInt(parts[3]);
+                    
+                    if (RHYTHM_CONFIG[draggedRhythmType]) {
+                        // A. Update live game state
+                        turnHistory[mIdx][bIdx] = draggedRhythmType;
+                        // B. Update visual UI
+                        currentDropTarget.innerHTML = SVGS[draggedRhythmType];
+                        // C. Animate the snap
+                        currentDropTarget.style.transform = 'scale(1.15)';
+                        setTimeout(() => currentDropTarget.style.transform = '', 150);
+                    }
+                }
+                currentDropTarget = null;
+            }
+            
+            // Prevent the drag from accidentally registering as a "click" and selecting the card
+            if (e.cancelable) e.preventDefault(); 
+        }
+        
+        isDragging = false;
+        draggedRhythmType = null;
+    }
 
     function generateTurnPatterns(count, preserveExisting = false) {
         const cards = Array.from(document.querySelectorAll('.rhythm-card.selected')).map(c => c.dataset.type);
@@ -1610,6 +1752,39 @@ function playMetronome(isDownbeat, time) {
                 c.style.minHeight = turnHistory.length > 2 ? '55px' : '80px';
                 
                 c.innerHTML = (typeof SVGS !== 'undefined' && SVGS[beatType]) ? SVGS[beatType] : "";
+                
+                // --- NEW: Drag and Drop Target Logic ---
+                // 1. Allow the drop and add the glow
+                c.addEventListener('dragover', (e) => {
+                    e.preventDefault(); // You MUST prevent default to allow dropping!
+                    c.classList.add('drop-target');
+                });
+
+                // 2. Remove the glow if the user drags away without dropping
+                c.addEventListener('dragleave', (e) => {
+                    c.classList.remove('drop-target');
+                });
+
+                // 3. Handle the actual drop
+                c.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    c.classList.remove('drop-target'); // Kill the glow
+                    
+                    const droppedType = e.dataTransfer.getData('text/plain');
+                    
+                    if (RHYTHM_CONFIG[droppedType]) {
+                        // A. Instantly update the live array for the audio loop!
+                        turnHistory[mIdx][i] = droppedType;
+                        
+                        // B. Instantly update the visuals!
+                        c.innerHTML = SVGS[droppedType];
+                        
+                        // C. Add a little tactile "pop" to confirm the drop
+                        c.style.transform = 'scale(1.15)';
+                        setTimeout(() => c.style.transform = '', 150);
+                    }
+                });
+
                 row.appendChild(c);
             }
             container.appendChild(row);
