@@ -594,6 +594,16 @@ input[type=range] { width: 100%; accent-color: var(--primary); cursor: pointer; 
 .rhythm-card, .beat-cell {
     touch-action: none; 
 }
+/* Ensure the card can hold a child element absolutely positioned */
+.rhythm-card {
+    position: relative;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+    transition: transform 0.15s, box-shadow 0.15s;
+    cursor: grab;
+    touch-action: none;
+    padding-top: 15px; /* Adds space at the top so the handle doesn't overlap text */
+}
+
 
         /* =========================================
            RESPONSIVE SIZING & DEVICE QUERIES
@@ -658,6 +668,8 @@ input[type=range] { width: 100%; accent-color: var(--primary); cursor: pointer; 
             .rhythm-card { 
                 width: 85px; 
                 height: 105px; 
+                /* THE FIX: This tells the browser "Don't ever try to scroll when this card is touched" */
+    touch-action: none;
             }
            .beat-cell .svg-boo  { transform: scale(0.60); }
     .beat-cell .svg-rest { transform: scale(0.55); }
@@ -778,6 +790,8 @@ input[type=range] { width: 100%; accent-color: var(--primary); cursor: pointer; 
                 max-width: 100px;  /* Prevents the bottom two from stretching out horizontally */
                 height: 90px;      /* Restores that nice arcade button height */
                 margin: 0;         /* The 'gap' property above handles the spacing now */
+                /* THE FIX: This tells the browser "Don't ever try to scroll when this card is touched" */
+    touch-action: none;
             }
             .rhythm-card svg { 
                 height: 40px; 
@@ -1005,6 +1019,8 @@ input[type=range] { width: 100%; accent-color: var(--primary); cursor: pointer; 
                 min-width: 50px !important;
                 padding: 4px !important;
                 gap: 1px !important;
+                /* THE FIX: This tells the browser "Don't ever try to scroll when this card is touched" */
+    touch-action: none;
             }
             .rhythm-card svg {
                 height: 30px !important; 
@@ -1130,6 +1146,8 @@ input[type=range] { width: 100%; accent-color: var(--primary); cursor: pointer; 
                 min-width: 80px !important;
                 padding: 10px !important;
                 gap: 5px !important;
+                /* THE FIX: This tells the browser "Don't ever try to scroll when this card is touched" */
+    touch-action: none;
             }
             .rhythm-card svg {
                 height: 45px !important;
