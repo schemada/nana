@@ -609,7 +609,7 @@ input[type=range] { width: 100%; accent-color: var(--primary); cursor: pointer; 
            RESPONSIVE SIZING & DEVICE QUERIES
            ========================================= */
 
-        /* 1. DESKTOP UPSCALING (Over 1024px) */
+       /* 1. DESKTOP UPSCALING (Over 1024px) */
         @media (min-width: 1025px) {
             .mascot-box { 
                 font-size: 8px !important; 
@@ -623,25 +623,53 @@ input[type=range] { width: 100%; accent-color: var(--primary); cursor: pointer; 
                 font-size: 2rem; 
                 padding: 35px 70px; 
             }
-            .rhythm-card { 
-                width: 110px; 
-                height: 145px; 
+            
+            /* --- THE GOLDILOCKS DESKTOP SPLITTER --- */
+            
+            /* 1. The Main Game Board (Splits the difference at 650px) */
+            .measure-wrapper, #central-light, .controls, .footer-row {
+                max-width: 650px !important; 
             }
+            
+            /* 2. The Sequence Beat Cells */
+            .beat-cell {
+                height: 130px !important; 
+            }
+            .beat-cell svg {
+                width: 65px !important; 
+            }
+
+            /* 3. The Rhythm Cards (Perfect 100px Squares) */
+            .rhythm-card {
+                width: 100px !important;
+                height: 100px !important;
+                flex: 0 0 auto !important; 
+            }
+            .rhythm-card svg {
+                height: 50px !important; 
+            }
+            .picker-container {
+                max-width: 650px !important; 
+            }
+            /* ------------------------------------------- */
+
             /* Desktop Sound Reminder Scaling */
             .sound-reminder {
                 font-size: 2rem !important;
                 margin-top: 65px !important;
                 gap: 50px !important;
-                        transform: scale(1.5);
+                transform: scale(1.5);
             }
             .sound-reminder svg {
                 width: 28px !important;
                 height: 28px !important;
             }
+            
             /* 1. DESKTOP DEFAULT */
-.beat-cell .svg-boo  { transform: scale(0.75); } /* 85% size */
-.beat-cell .svg-rest { transform: scale(0.65); } /* 75% size (Rest is thick, needs a bit more) */
-.beat-cell .svg-nana { transform: scale(0.80); } /* 95% size (Barely touched) */
+            .beat-cell .svg-boo  { transform: scale(0.75); } 
+            .beat-cell .svg-rest { transform: scale(0.65); } 
+            .beat-cell .svg-nana { transform: scale(0.80); } 
+        }
 
         /* 2. IPAD / TABLET (601px to 1024px) */
         @media (min-width: 601px) and (max-width: 1024px) {
@@ -1184,6 +1212,11 @@ input[type=range] { width: 100%; accent-color: var(--primary); cursor: pointer; 
             0% { transform: scale(0.95) rotate(-1deg); opacity: 0.8; filter:blur(2px); }
             100% { transform: scale(1) rotate(0deg); opacity: 1; filter:blur(0px); }
         }
+        /* --- FIX: Center SVGs inside the Rhythm Cards --- */
+        .rhythm-card {
+            justify-content: center !important;
+            padding-top: 15px !important; /* Keeps the SVG from overlapping the grab handle */
+        }
     </style>
 </head>
 <body>
@@ -1496,10 +1529,12 @@ function playMetronome(isDownbeat, time) {
         Adv2: { offsets: [0, 0.25, 0.5], name: "" }, 
         Adv3: { offsets: [0, 0.25, 0.75], name: "" },        
         Adv5: { offsets: [0.25, 0.5, 0.75], name: "" },
-        Adv4: { offsets: [0, 0.75], name: "" }, 
+        Adv4: { offsets: [0, 0.75], name: "" },
+        Offbeat: { offsets: [0.5], name: "" }, 
         Adv6: { offsets: [0.5, 0.75], name: "" },
         Adv7: { offsets: [0, 0.25], name: "" },
-        Offbeat: { offsets: [0.5], name: "" }, 
+        Adv11: { offsets: [0.25, 0.5], name: "" }, // The "e &" (Rest, Note, Note, Rest)
+        E_A: { offsets: [0.25, 0.75], name: "" }, // Rest on 1, Note on 'e', Rest on '&', Note on 'a'
         Adv8: { offsets: [0.25], name: "" }, // The 'e'
         Adv9: { offsets: [0.75], name: "" } // The 'a'
     };
@@ -1526,7 +1561,31 @@ function playMetronome(isDownbeat, time) {
         Adv3: `<svg viewBox="0 0 100 100" width="55"><ellipse cx="16" cy="82" rx="7" ry="5" fill="white" transform="rotate(-15, 16, 82)"/><rect x="20" y="20" width="3" height="62" fill="white"/><ellipse cx="51" cy="82" rx="7" ry="5" fill="white" transform="rotate(-15, 51, 82)"/><rect x="55" y="20" width="3" height="62" fill="white"/><ellipse cx="86" cy="82" rx="7" ry="5" fill="white" transform="rotate(-15, 86, 82)"/><rect x="90" y="20" width="3" height="62" fill="white"/><rect x="20" y="20" width="73" height="7" fill="white"/><rect x="20" y="32" width="12" height="7" fill="white"/><rect x="78" y="32" width="15" height="7" fill="white"/></svg>`, 
         
         Adv4: `<svg viewBox="0 0 100 100" width="55"><ellipse cx="26" cy="82" rx="9" ry="6" fill="white" transform="rotate(-15, 26, 82)"/><rect x="32" y="20" width="4" height="62" fill="white"/><circle cx="48" cy="75" r="4" fill="white"/><ellipse cx="76" cy="82" rx="7" ry="5" fill="white" transform="rotate(-15, 76, 82)"/><rect x="80" y="20" width="3" height="62" fill="white"/><rect x="32" y="20" width="51" height="8" fill="white"/><rect x="68" y="32" width="15" height="7" fill="white"/></svg>`, 
-        
+        E_A: `<svg viewBox="0 0 100 100" width="55">
+        <g transform="translate(-4, 0)">
+            <path d="M 15,30 Q 23,25 23,35 L 15,55" stroke="white" stroke-width="2.5" fill="none"/>
+            <circle cx="15" cy="30" r="3" fill="white"/>
+            <path d="M 10,45 Q 18,40 18,50 L 5,75" stroke="white" stroke-width="2.5" fill="none"/>
+            <circle cx="10" cy="45" r="3" fill="white"/>
+        </g>
+
+        <ellipse cx="34" cy="82" rx="7" ry="5" fill="white" transform="rotate(-15, 34, 82)"/>
+        <rect x="38" y="20" width="3" height="62" fill="white"/>
+        <rect x="38" y="32" width="10" height="7" fill="white"/> 
+
+        <g transform="translate(46, 6)">
+            <path d="M 15,30 Q 23,25 23,35 L 15,55" stroke="white" stroke-width="2.5" fill="none"/>
+            <circle cx="15" cy="30" r="3" fill="white"/>
+            <path d="M 10,45 Q 18,40 18,50 L 5,75" stroke="white" stroke-width="2.5" fill="none"/>
+            <circle cx="10" cy="45" r="3" fill="white"/>
+        </g>
+
+        <ellipse cx="90" cy="82" rx="7" ry="5" fill="white" transform="rotate(-15, 90, 82)"/>
+        <rect x="94" y="20" width="3" height="62" fill="white"/>
+        <rect x="84" y="32" width="10" height="7" fill="white"/> 
+
+        <rect x="38" y="20" width="59" height="8" fill="white"/>
+    </svg>`,
         Adv5: `<svg viewBox="0 0 100 100" width="55"><path d="M 15,30 Q 23,25 23,35 L 15,55" stroke="white" stroke-width="2.5" fill="none"/><circle cx="15" cy="30" r="3" fill="white"/><path d="M 10,45 Q 18,40 18,50 L 5,75" stroke="white" stroke-width="2.5" fill="none"/><circle cx="10" cy="45" r="3" fill="white"/><ellipse cx="36" cy="82" rx="7" ry="5" fill="white" transform="rotate(-15, 36, 82)"/><rect x="40" y="20" width="3" height="62" fill="white"/><ellipse cx="61" cy="82" rx="7" ry="5" fill="white" transform="rotate(-15, 61, 82)"/><rect x="65" y="20" width="3" height="62" fill="white"/><ellipse cx="86" cy="82" rx="7" ry="5" fill="white" transform="rotate(-15, 86, 82)"/><rect x="90" y="20" width="3" height="62" fill="white"/><rect x="40" y="20" width="53" height="7" fill="white"/><rect x="40" y="32" width="53" height="7" fill="white"/></svg>`, 
         
         Adv6: `<svg viewBox="0 0 100 100" width="55"><path d="M 20,35 Q 30,28 30,40 L 15,75" stroke="white" stroke-width="3" fill="none"/><circle cx="20" cy="35" r="3.5" fill="white"/><ellipse cx="56" cy="82" rx="7" ry="5" fill="white" transform="rotate(-15, 56, 82)"/><rect x="60" y="20" width="3" height="62" fill="white"/><ellipse cx="86" cy="82" rx="7" ry="5" fill="white" transform="rotate(-15, 86, 82)"/><rect x="90" y="20" width="3" height="62" fill="white"/><rect x="60" y="20" width="33" height="7" fill="white"/><rect x="60" y="32" width="33" height="7" fill="white"/></svg>`, 
@@ -1535,7 +1594,31 @@ function playMetronome(isDownbeat, time) {
         
         Adv8: `<svg viewBox="0 0 100 100" width="55"><path d="M 15,30 Q 23,25 23,35 L 15,55" stroke="white" stroke-width="2.5" fill="none"/><circle cx="15" cy="30" r="3" fill="white"/><path d="M 10,45 Q 18,40 18,50 L 5,75" stroke="white" stroke-width="2.5" fill="none"/><circle cx="10" cy="45" r="3" fill="white"/><ellipse cx="46" cy="82" rx="7" ry="5" fill="white" transform="rotate(-15, 46, 82)"/><rect x="50" y="20" width="3" height="62" fill="white"/><path d="M 53,20 C 53,25 66,34 59,44 Q 57.5,46 60.5,44 C 67,38 59,32 53,32 Z" fill="white"/><path d="M 53,34 C 53,40 71,52 58,68.5 Q 56.5,71 59.5,68.5 C 69,60 61,50 53,46 Z" fill="white"/><path d="M80,35 Q90,28 90,40 L75,75" stroke="white" stroke-width="4" fill="none"/><circle cx="80" cy="35" r="4" fill="white"/></svg>`,
 
-        Adv9: `<svg viewBox="0 0 100 100" width="55"><path d="M30,35 Q40,28 40,40 L25,75" stroke="white" stroke-width="4" fill="none"/><circle cx="30" cy="35" r="4" fill="white"/><circle cx="50" cy="45" r="3" fill="white"/><ellipse cx="76" cy="82" rx="7" ry="5" fill="white" transform="rotate(-15, 76, 82)"/><rect x="80" y="20" width="3" height="62" fill="white"/><path d="M 83,20 C 83,25 96,34 89,44 Q 87.5,46 90.5,44 C 97,38 89,32 83,32 Z" fill="white"/><path d="M 83,34 C 83,40 101,52 88,68.5 Q 86.5,71 89.5,68.5 C 99,60 91,50 83,46 Z" fill="white"/></svg>`
+        Adv9: `<svg viewBox="0 0 100 100" width="55"><path d="M30,35 Q40,28 40,40 L25,75" stroke="white" stroke-width="4" fill="none"/><circle cx="30" cy="35" r="4" fill="white"/><circle cx="50" cy="45" r="3" fill="white"/><ellipse cx="76" cy="82" rx="7" ry="5" fill="white" transform="rotate(-15, 76, 82)"/><rect x="80" y="20" width="3" height="62" fill="white"/><path d="M 83,20 C 83,25 96,34 89,44 Q 87.5,46 90.5,44 C 97,38 89,32 83,32 Z" fill="white"/><path d="M 83,34 C 83,40 101,52 88,68.5 Q 86.5,71 89.5,68.5 C 99,60 91,50 83,46 Z" fill="white"/></svg>`,
+        Adv11: `<svg viewBox="0 0 100 100" width="55">
+        <g transform="translate(-4, 0)">
+            <path d="M 15,30 Q 23,25 23,35 L 15,55" stroke="white" stroke-width="2.5" fill="none"/>
+            <circle cx="15" cy="30" r="3" fill="white"/>
+            <path d="M 10,45 Q 18,40 18,50 L 5,75" stroke="white" stroke-width="2.5" fill="none"/>
+            <circle cx="10" cy="45" r="3" fill="white"/>
+        </g>
+
+        <ellipse cx="36" cy="82" rx="7" ry="5" fill="white" transform="rotate(-15, 36, 82)"/>
+        <rect x="40" y="20" width="3" height="62" fill="white"/>
+
+        <ellipse cx="61" cy="82" rx="7" ry="5" fill="white" transform="rotate(-15, 61, 82)"/>
+        <rect x="65" y="20" width="3" height="62" fill="white"/>
+
+        <rect x="40" y="20" width="28" height="7" fill="white"/>
+        <rect x="40" y="32" width="28" height="7" fill="white"/>
+
+        <g transform="translate(71, 0)">
+            <path d="M 15,30 Q 23,25 23,35 L 15,55" stroke="white" stroke-width="2.5" fill="none"/>
+            <circle cx="15" cy="30" r="3" fill="white"/>
+            <path d="M 10,45 Q 18,40 18,50 L 5,75" stroke="white" stroke-width="2.5" fill="none"/>
+            <circle cx="10" cy="45" r="3" fill="white"/>
+        </g>
+    </svg>`
     };
         
     function initAudio() {
@@ -1609,8 +1692,7 @@ function playMetronome(isDownbeat, time) {
         const isDefault = (key === 'Boo' || key === 'Nana'); 
         card.className = `rhythm-card ${isDefault ? 'selected' : ''}`; 
         card.dataset.type = key; 
-        const label = RHYTHM_CONFIG[key].name ? `<div style="font-size:6px;">${RHYTHM_CONFIG[key].name}</div>` : ''; 
-        card.innerHTML = SVGS[key] + label; 
+       card.innerHTML += SVGS[key];
         
         // --- EXISTING: Desktop Drag and Drop ---
         card.draggable = true;
@@ -2029,7 +2111,7 @@ function playTone(freq, time, vol = 0.2, dur = 0.1, isMetronome = false) {
 
             [g, woodGain].forEach(node => {
                 node.gain.setValueAtTime(0, t);
-                node.gain.linearRampToValueAtTime(finalVol * 0.5, t + attack);
+                node.gain.linearRampToValueAtTime(finalVol * 0.35, t + attack);
                 node.gain.exponentialRampToValueAtTime(0.001, t + decay);
             });
 
@@ -2047,7 +2129,7 @@ function playTone(freq, time, vol = 0.2, dur = 0.1, isMetronome = false) {
             // The noise clings to the clave: 40ms decay
             noiseGain.gain.cancelScheduledValues(t);
             noiseGain.gain.setValueAtTime(0, t);
-            noiseGain.gain.linearRampToValueAtTime(finalVol * 0.8, t + attack); 
+            noiseGain.gain.linearRampToValueAtTime(finalVol * 0.65, t + attack); 
             noiseGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.04); 
 
             woodOsc.start(t);
