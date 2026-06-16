@@ -1366,6 +1366,7 @@ input[type=range] { width: 100%; accent-color: var(--primary); cursor: pointer; 
     const light = document.getElementById('central-light'), toggleBtn = document.getElementById('toggle-btn'), slider = document.getElementById('tempo-slider'), patchBtns = document.querySelectorAll('.patch-btn'), lockBtn = document.getElementById('lock-btn'), lockIcon = document.getElementById('lock-icon');
     let isRunning = false, tempo = 80, secondsPerBeat = 0.75, nextNoteTime = 0, currentBeatIndex = 0, isTeacherTurn = true, currentRhythm = [], soundType = 'classic', isLocked = false, isFirstBoot = true;
     let turnHistory = []; // NEW: Stores the patterns for the student to repeat
+    let lastTurnHistory = []; // NEW: Our "Buzzer Beater" backup!
     // NEW: Time Signature State
     let beatsPerMeasure = 4;
     const timeSigSelect = document.getElementById('time-sig-select');
@@ -1566,7 +1567,43 @@ function playMetronome(isDownbeat, time) {
     if (audioCtx.state === 'suspended') audioCtx.resume();
 }
     patchBtns.forEach(btn => { btn.onclick = () => { patchBtns.forEach(b => b.classList.remove('active')); btn.classList.add('active'); soundType = btn.dataset.patch; initAudio(); }; });
-    lockBtn.onclick = () => { isLocked = !isLocked; lockBtn.classList.toggle('locked', isLocked); lockIcon.innerHTML = isLocked ? `<path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/>` : `<path d="M12 17c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm6-9h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6h1.9c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm0 12H6V10h12v10z"/>`; initAudio(); };
+   lockBtn.onclick = () => { 
+        isLocked = !isLocked; 
+        lockBtn.classList.toggle('locked', isLocked); 
+        lockIcon.innerHTML = isLocked ? `<path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/>` : `<path d="M12 17c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm6-9h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6h1.9c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm0 12H6V10h12v10z"/>`; 
+        initAudio(); 
+
+        // --- THE BUZZER BEATER FIX (Part 2) ---
+        if (isLocked && isRunning && isTeacherTurn && currentBeatIndex <= 1) {
+            if (lastTurnHistory.length > 0) {
+                
+                // 1. MEMORIZE THE GLOW: Find out which cell is currently lit up
+                const glowingTeacher = document.querySelector('.beat-cell.active');
+                const glowingStudent = document.querySelector('.beat-cell.student-active');
+                
+                let savedId = null;
+                let savedClass = null;
+                
+                if (glowingTeacher) {
+                    savedId = glowingTeacher.id;
+                    savedClass = 'active';
+                } else if (glowingStudent) {
+                    savedId = glowingStudent.id;
+                    savedClass = 'student-active';
+                }
+
+                // 2. THE RESCUE: Restore the array and rebuild the DOM
+                turnHistory = JSON.parse(JSON.stringify(lastTurnHistory));
+                buildSequenceUI(); 
+                
+                // 3. RESTORE THE GLOW: Put it right back where it belongs!
+                if (savedId) {
+                    const restoredCell = document.getElementById(savedId);
+                    if (restoredCell) restoredCell.classList.add(savedClass);
+                }
+            }
+        }
+    };
    Object.keys(RHYTHM_CONFIG).forEach(key => { 
         const card = document.createElement('div'); 
         const isDefault = (key === 'Boo' || key === 'Nana'); 
@@ -1709,8 +1746,14 @@ function playMetronome(isDownbeat, time) {
     }
 
     function generateTurnPatterns(count, preserveExisting = false) {
+        // --- THE BUZZER BEATER FIX (Part 1) ---
+        // Save a snapshot of the current pattern right before we potentially scramble it
+        if (turnHistory && turnHistory.length > 0) {
+            lastTurnHistory = JSON.parse(JSON.stringify(turnHistory)); // Deep copy
+        }
+
         const cards = Array.from(document.querySelectorAll('.rhythm-card.selected')).map(c => c.dataset.type);
-        let tempHistory = []; 
+        let tempHistory = [];
         
         for (let m = 0; m < count; m++) {
             // Keep the pattern IF we are just changing settings, OR if the lock is pressed
