@@ -118,33 +118,46 @@ html, body {
     visibility: hidden;
 }
         .mascot-box {
-            font-family: monospace; font-size: 0.6vw; line-height: 1.1;
-            color: var(--banana-gold); white-space: pre; text-align: center;
+            font-family: monospace; 
+            /* THE MAGIC BULLET: Never smaller than 4px, ideally 1.2% of the screen width, never larger than 8px! */
+            font-size: clamp(4px, 1.2vw, 8px) !important; 
+            
+            line-height: 1.1;
+            color: var(--banana-gold); 
+            white-space: pre; 
+            text-align: center;
             filter: drop-shadow(0 0 15px rgba(255, 215, 0, 0.5));
-            margin-bottom: 30px; animation: mascotThump 0.5s ease-in-out infinite alternate;
+            margin-bottom: 30px; 
+            animation: mascotThump 0.5s ease-in-out infinite alternate;
         }
         
         @keyframes mascotThump { 0% { transform: scale(1.1) translateY(0); } 100% { transform: scale(1.15) translateY(-10px); } }
         .title-group { text-align: center; margin-bottom: 15px; }
-        .main-title { 
-            /* Hardcoded vibrant colors so they don't change with themes */
-    font-size: 2.3rem; 
-    color: #5dade2; /* Restored to your original cyan-blue */
-    text-shadow: 0 0 20px #5dade2, 8px 8px 0px #000; 
-    margin: 0; 
-    animation: neonPulse 1.5s infinite alternate;
+       .main-title { 
+            /* THE MATH: Smoothly scales from 1.8rem on phones to 4rem on Desktops */
+            font-size: clamp(1.8rem, 8vmin, 4rem) !important; 
+            color: #5dade2; 
+            text-shadow: 0 0 20px #5dade2, 8px 8px 0px #000; 
+            margin: 0; 
+            animation: neonPulse 1.5s infinite alternate;
         }
         @keyframes neonPulse { 0% { text-shadow: 0 0 15px #5dade2, 8px 8px 0px #000; } 
     100% { text-shadow: 0 0 35px #5dade2, 8px 8px 0px #000; }}
-        .sub-title {         
-    font-size: 1.2rem; 
-    color: #ff9f43; 
-    letter-spacing: 6px; 
-    margin: 25px 0 55px 0; /* Extra margin keeps it floating between the two */
-    text-transform: uppercase;
+       .sub-title {         
+            /* THE MATH: Scales perfectly underneath the main title */
+            font-size: clamp(0.7rem, 2.5vmin, 1.2rem) !important; 
+            color: #ff9f43; 
+            letter-spacing: 6px; 
+            margin: 25px 0 55px 0; 
+            text-transform: uppercase;
         }
-        .press-start {
-            font-family: 'Press Start 2P'; font-size: 1rem; padding: 15px 30px;
+        .press-start, .boot-btn {
+            font-family: 'Press Start 2P'; 
+            
+            /* THE MATH: Double clamp! Scales top/bottom padding AND left/right padding independently! */
+            padding: clamp(12px, 3vmin, 35px) clamp(20px, 6vmin, 70px) !important; 
+            font-size: clamp(1rem, 3.5vmin, 2rem) !important; 
+            
             background: #10ac84; color: #fff; border: 6px solid #fff; cursor: pointer;
             box-shadow: 0 12px 0 #064d3b;
             margin: 0 0 85px;
@@ -254,12 +267,36 @@ html, body {
     transform: scale(1.05) !important;
     z-index: 2;
 }
-        .controls { margin-top: 30px; width: 100%; background: #111125; padding: 20px; border-radius: 15px; text-align: center; border: 4px solid #333; }
+       .controls { 
+            margin-top: clamp(10px, 3vh, 30px); 
+            width: 100%; 
+            background: #111125; 
+            
+            /* THE MATH: Dynamically shrinks the internal padding so it doesn't waste space on phones! */
+            padding: clamp(8px, 4vmin, 40px) !important; 
+            
+            border-radius: 15px; 
+            text-align: center; 
+            border: 4px solid #333; 
+        }
         input[type=range] { -webkit-appearance: none; width: 100%; height: 12px; border-radius: 10px; margin: 15px 0; border: 3px solid #000; }
         #tempo-slider { background: linear-gradient(to right, var(--easy) 0% 30%, var(--medium) 30% 60%, var(--hard) 60% 85%, var(--expert) 85% 100%); }
         input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 25px; height: 25px; background: #fff; border: 4px solid #000; cursor: pointer; }
         .patch-btn { font-family: 'Press Start 2P'; font-size: 8px; padding: 8px; background: #111125; color: #888; border: 2px solid #444; border-radius: 4px; }
-        #toggle-btn { font-family: 'Press Start 2P'; width: 100%; padding: 18px; background: var(--action); color: #fff; border: none; box-shadow: 0 6px var(--action-shadow); cursor: pointer; font-size: 1.2rem; margin-top: 15px; }
+       #toggle-btn { 
+            font-family: 'Press Start 2P'; 
+            width: 100%; 
+            
+            /* THE MATH: Scales the font AND the padding fluidly! */
+            font-size: clamp(1rem, 3.5vmin, 2rem) !important; 
+            padding: clamp(12px, 3vmin, 30px) !important; 
+            
+            background: var(--action); 
+            color: #fff; border: none; 
+            box-shadow: 0 6px var(--action-shadow); 
+            cursor: pointer; 
+            margin-top: 15px; 
+        }
       .measure-wrapper {
     position: relative; /* <--- THIS IS THE MISSING ANCHOR */
     flex-grow: 0; 
@@ -382,7 +419,6 @@ html, body {
 
     /* 4. Make the UI labels and buttons bigger */
     #status-banner { font-size: 2rem; margin-bottom: 30px; }
-    .controls { padding: 40px; }
     #toggle-btn {
         background-color: var(--action) !important;
     border: none;
@@ -431,14 +467,19 @@ html, body {
         }
 /* --- ADVANCED RHYTHM SCROLLBOX --- */
 #picker-adv {
-    max-height: 30vh !important; /* Bumped up slightly */
-    min-height: 18vh !important; /* THE FIX: Never shrink smaller than a card! */
+    max-height: 30vh !important; 
+    min-height: 18vh !important; 
     overflow-y: auto !important;
     -webkit-overflow-scrolling: touch; 
     align-content: flex-start; 
     border-bottom: 2px dashed #444;
+    
+    /* THE FIX: Dedicated "Thumb Runways" for scrolling! */
+    padding-left: 30px !important;
+    padding-right: 30px !important;
     padding-bottom: 10px !important;
-    margin-bottom: 15px !important;
+    
+    margin-bottom: 10px !important;
 }
 
 /* Custom Arcade Scrollbar Styling */
@@ -660,10 +701,15 @@ input[type=range] { width: 100%; accent-color: var(--primary); cursor: pointer; 
             animation: neonPulse 1s infinite alternate; 
         }
 
-        /* Only blocks the browser from hijacking these specific elements */
-.rhythm-card, .beat-cell {
-    touch-action: none; 
-}
+    
+/* Only blocks the browser from hijacking these specific elements */
+        .rhythm-card {
+            touch-action: manipulation; 
+        }
+        .beat-cell {
+            /* THE FIX: Unlocks the massive grid dead-zone so users can scroll the page! */
+            touch-action: manipulation !important; 
+        }
 /* Ensure the card can hold a child element absolutely positioned */
 .rhythm-card {
     position: relative;
@@ -681,18 +727,7 @@ input[type=range] { width: 100%; accent-color: var(--primary); cursor: pointer; 
 
        /* 1. DESKTOP UPSCALING (Over 1024px) */
         @media (min-width: 1025px) {
-            .mascot-box { 
-                font-size: 8px !important; 
-                line-height: 1.2; 
-                margin-bottom: 40px; 
-            }
-            .main-title { 
-                font-size: 4rem; 
-            } 
-            .press-start, .boot-btn { 
-                font-size: 2rem; 
-                padding: 35px 70px; 
-            }
+            
             
             /* --- THE GOLDILOCKS DESKTOP SPLITTER --- */
             
@@ -723,18 +758,9 @@ input[type=range] { width: 100%; accent-color: var(--primary); cursor: pointer; 
        
         }
 
-        /* 2. IPAD / TABLET (601px to 1024px) */
+        /* 2. IPAD / TABLET Portrait (601px to 1024px) */
         @media (min-width: 601px) and (max-width: 1024px) {
-            .main-title { 
-                font-size: 2.5rem !important; 
-            }
-            .sub-title { 
-                font-size: 1rem; 
-            }
-            .press-start, .boot-btn { 
-                font-size: 1.5rem; 
-                padding: 25px 50px; 
-            }
+           
             /* iPad Portrait Sound Reminder */
             .sound-reminder {
                 font-size: 1rem !important;
@@ -750,9 +776,7 @@ input[type=range] { width: 100%; accent-color: var(--primary); cursor: pointer; 
 }
             
 
-            .mascot-box {
-                font-size: 0.8vw;
-            }
+            
         }
 
       /* --------------------------------------------------- */
@@ -767,20 +791,10 @@ input[type=range] { width: 100%; accent-color: var(--primary); cursor: pointer; 
                 justify-content: flex-start !important; 
             }
             
-            /* Mascot scaled perfectly to not overwhelm the title */
-            .mascot-box { 
-                font-size: 6px !important; 
-                margin-top: 2vh !important; 
-                margin-bottom: 15px !important; 
-                line-height: 1.2; 
-            }
+            .mascot-box { margin-top: 2vh !important; margin-bottom: 15px !important; }
             
             /* Toned down from 3.2rem. Big, bold, but balanced. */
-            .main-title { 
-                font-size: 2.4rem !important; 
-                line-height: 1.1 !important; 
-                margin-bottom: 10px !important; 
-            }
+            
             
             /* Distinct gap underneath subtitle before the button */
             .sub-title { 
@@ -834,8 +848,8 @@ input[type=range] { width: 100%; accent-color: var(--primary); cursor: pointer; 
             }
 
             /* SQUISHED CONTROLS */
-            .controls { padding: 8px !important; gap: 6px !important; margin-bottom: 0 !important; }
-            .controls .patch-btn, #toggle-btn { padding: 8px 12px !important; font-size: 0.75rem !important; }
+            .controls { gap: 6px !important; margin-bottom: 0 !important; }
+            .controls .patch-btn { padding: 8px 12px !important; font-size: 0.75rem !important; }
             .controls .btn-icon { width: 36px !important; height: 36px !important; }
             .controls .btn-icon svg { width: 18px !important; height: 18px !important; }
 
@@ -882,7 +896,7 @@ input[type=range] { width: 100%; accent-color: var(--primary); cursor: pointer; 
            
 
             /* Advanced menu stays tight */
-            #picker-adv { min-height: 55px !important; max-height: 120px !important; margin-bottom: 5px !important; gap: 4px !important; }
+            #picker-adv { min-height: 55px !important; max-height: 120px !important; margin-bottom: 15px !important; gap: 4px !important; }
 
             /* Squeeze the controls */
             .controls { padding: 4px !important; gap: 6px !important; margin-bottom: 5px !important; }
@@ -965,6 +979,8 @@ input[type=range] { width: 100%; accent-color: var(--primary); cursor: pointer; 
                 min-height: 100dvh !important;
                 overflow-x: hidden !important;
                 overflow-y: auto !important; 
+                /* THE FIX: Restores native scroll chaining! */
+                overscroll-behavior: auto !important; 
             }
 
             #game-container {
@@ -1126,12 +1142,15 @@ input[type=range] { width: 100%; accent-color: var(--primary); cursor: pointer; 
            ========================================= */
         @media (min-width: 768px) and (max-height: 1024px) and (orientation: landscape) {
             /* --- THE DEFINITIVE iOS SCROLL BUG FIX (Now applied to iPad!) --- */
+           /* --- THE DEFINITIVE iOS SCROLL BUG FIX (Now applied to iPad!) --- */
             html, body {
                 display: block !important; 
                 height: auto !important;
                 min-height: 100dvh !important;
                 overflow-x: hidden !important;
                 overflow-y: auto !important; 
+                /* THE FIX: Restores native scroll chaining! */
+                overscroll-behavior: auto !important; 
             }
             #game-container {
                 
@@ -1152,27 +1171,18 @@ input[type=range] { width: 100%; accent-color: var(--primary); cursor: pointer; 
                 gap: 0 !important; 
             }
 
-            .main-title {
-                font-size: 3.2rem !important; 
-                margin-bottom: 30px !important;
-                line-height: 0.9 !important;
-            }
-
             .sub-title {
-                font-size: 0.85rem !important; 
                 margin: 2px 0 55px 0 !important;
                 letter-spacing: 3px !important;
             }
 
-            .mascot-box {
-                font-size: 0.5vw !important; 
+           .mascot-box {
                 margin-bottom: 2px !important;
-                translateY(10px) !important; 
+                transform: translateY(10px) !important; 
             }
 
             .press-start, .boot-btn { /* FIXED MISSING DOT HERE TOO */
                 margin-top: -20px !important; 
-                padding: 15px 40px !important;
                 font-size: 1.2rem !important;
                 min-height: 45px !important;
                 border-width: 3px !important;
@@ -1188,11 +1198,6 @@ input[type=range] { width: 100%; accent-color: var(--primary); cursor: pointer; 
 
             .beat-cell { height: 110px !important; }
             .beat-cell svg { height: 60px !important; width: auto !important; }
-
-            .controls {
-                padding: 20px !important;
-                margin-top: 15px !important;
-            }
 
             .rhythm-card div:last-child {
                 font-size: 8px !important; 
