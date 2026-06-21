@@ -69,6 +69,19 @@ button,
     /* Difficulty Bar (Restoring these too!) */
     --easy: #5dade2; --medium: #f1c40f; --hard: #e67e22; --expert: #e94560;
 }
+/* --- APP SCROLL LOCK --- */
+html, body {
+    height: 100dvh !important;
+    overflow: hidden !important; /* Kills the native page scroll */
+    overscroll-behavior: none; /* Kills the iOS "pull-to-refresh" rubber-band bounce */
+}
+
+#game-container {
+    height: 100dvh !important;
+    overflow: hidden !important; /* Traps all elements inside the screen */
+    /* Distributes available vertical space automatically so things don't bunch up */
+    justify-content: space-evenly !important; 
+}
         * { user-select: none; -webkit-user-select: none; outline: none; box-sizing: border-box; touch-action: manipulation; }
         body {
             font-family: 'Press Start 2P', monospace;
@@ -112,10 +125,10 @@ button,
         }
         
         @keyframes mascotThump { 0% { transform: scale(1.1) translateY(0); } 100% { transform: scale(1.15) translateY(-10px); } }
-        .title-group { text-align: center; margin-bottom: 40px; }
+        .title-group { text-align: center; margin-bottom: 15px; }
         .main-title { 
             /* Hardcoded vibrant colors so they don't change with themes */
-    font-size: 3rem; 
+    font-size: 2.3rem; 
     color: #5dade2; /* Restored to your original cyan-blue */
     text-shadow: 0 0 20px #5dade2, 8px 8px 0px #000; 
     margin: 0; 
@@ -127,33 +140,45 @@ button,
     font-size: 1.2rem; 
     color: #ff9f43; 
     letter-spacing: 6px; 
-    margin: 25px 0 35px 0; /* Extra margin keeps it floating between the two */
+    margin: 25px 0 55px 0; /* Extra margin keeps it floating between the two */
     text-transform: uppercase;
         }
         .press-start {
             font-family: 'Press Start 2P'; font-size: 1rem; padding: 15px 30px;
             background: #10ac84; color: #fff; border: 6px solid #fff; cursor: pointer;
             box-shadow: 0 12px 0 #064d3b;
+            margin: 0 0 85px;
+        }
+        /* --- GLOBAL SPEAKER ICON FIX --- */
+        .sound-reminder {
+            font-size: 0.8rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        .sound-reminder svg {
+            width: 1.2em !important;
+            height: 1.2em !important;
+            flex-shrink: 0;
+            margin-bottom: 0 !important;
         }
       #game-container {
     display: none; 
     flex-direction: column;
     align-items: center;
-    
-    /* THE FIX: min-height prevents the top from being chopped off! */
     min-height: 100dvh; 
     height: auto; 
-    
     width: 100vw;
-    /* Safely buffers the top, right, bottom, and left for landscape notches! */
-    padding: max(20px, env(safe-area-inset-top)) max(15px, env(safe-area-inset-right)) max(20px, env(safe-area-inset-bottom)) max(15px, env(safe-area-inset-left));
+    
+    /* THE NUDGE: Pushed the top padding to 6vh to permanently clear the vignette shadow! */
+    padding: max(6vh, env(safe-area-inset-top)) max(15px, env(safe-area-inset-right)) max(20px, env(safe-area-inset-bottom)) max(15px, env(safe-area-inset-left));
+    
     box-sizing: border-box;
-    
-    /* Safely centers everything */
     justify-content: center; 
-    
     overflow-x: hidden;
-    overflow-y: auto; /* Allows scrolling on tiny screens so nothing is lost */
+    overflow-y: auto; 
 }
         #game-container.visible { display: flex; }
        /* --- 2. THE LIGHTBAR --- */
@@ -170,7 +195,10 @@ button,
             margin: 0px auto 6px auto !important; 
         }
 /* --- DESKTOP TIGHTENING (Stops the UI from stretching wide) --- */
-.measure-wrapper, 
+.measure-wrapper {
+    width: 100%;
+    max-width: 750px !important; /* Locks the width to a perfect mobile-sized column, even on a 4K monitor */
+}
 #central-light, 
 .controls, 
 .footer-row, 
@@ -196,9 +224,7 @@ button,
         box-shadow: 0 0 0px 0px transparent;
     } 
 }
-        .picker-container { display: flex; gap: 8px; margin-bottom: 15px; flex-wrap: wrap; justify-content: center; width: 100%; }
-    transform: scale(0.94); /* Just a slight push inward */
-}
+        .picker-container { display: flex; gap: 8px; margin-top: 15px; margin-bottom: 15px; flex-wrap: wrap; justify-content: center; width: 100%; }
         .rhythm-card.selected { border-color: var(--primary); background: #252545; box-shadow: 0 0 15px var(--primary); }
         .rhythm-card svg { height: 45px; width: auto; }
         #adv-toggle { color: var(--primary); font-size: 10px; margin-bottom: 20px; cursor: pointer; }
@@ -278,44 +304,65 @@ button,
         
 
     /* 2. Scale up the Title and Start Button */
-    .main-title { font-size: 4.5rem; }
     .art { font-size: 2.5rem; padding: 40px 80px; }
 
     /* 3. Scale the Rhythm Cards & Beat Cells */
     /* 1. GLOBAL LAYOUT (Keeps cards consistent across ALL themes) */
 /* --- COMPACT RHYTHM CARD SCALING --- */
+/* --- UNIVERSAL TIGHT RHYTHM CARDS (DYNAMIC SCALING) --- */
 .rhythm-card {
-    flex: 1 0 90px; 
-    max-width: 120px;
-    height: 110px; 
-    box-sizing: border-box;
-    border: 2px solid white;
-    background-color: var(--card-bg);
-    border-radius: 12px;
+    /* THE MAGIC: Smoothly calculates from 65px on phones up to 110px on big iPads/Desktops! */
+    width: clamp(65px, 13vmin, 110px) !important;  
+    height: clamp(65px, 13vmin, 110px) !important; 
+    padding-top: 8px !important;
+    background: var(--card-bg);
+    border: 3px solid var(--border-color);
+    border-radius: 8px !important;
     display: flex;
     flex-direction: column;
     align-items: center;
-    
-    /* 1. Push content to the top and bottom edges */
-    justify-content: space-between; 
-    
-    /* 2. Tighten padding to reclaim width for the SVG */
-    padding: 8px 4px !important; 
-    
-    cursor: pointer;
-    touch-action: manipulation;
-    margin: 4px;
+    justify-content: center !important; 
+    cursor: grab;
+    position: relative;
+    touch-action: none;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+    transition: width 0.3s ease, height 0.3s ease, transform 0.15s, box-shadow 0.15s, border-color 0.2s;
+    flex: 0 0 auto; 
 }
 
 .rhythm-card svg {
-    /* 3. Maximize width for small screens */
-    width: 95% !important;
-    max-width: 95% !important;
-    height: auto;
-    
-    /* 4. Ensure it leaves enough room for the label below */
-    max-height: 65%; 
-    pointer-events: none;
+    /* SVG perfectly tracks the card's height so the notes never warp */
+    height: clamp(36px, 7vmin, 60px) !important; 
+    width: auto !important;
+    transform: none !important;
+}
+/* --- APP PINNING & SCROLL ARCHITECTURE --- */
+/* 1. Lock the physical screen to stop Safari bounce */
+html, body {
+    height: 100dvh !important;
+    width: 100vw !important;
+    overflow: hidden !important; 
+    overscroll-behavior: none;
+}
+/* 2. Let the inner container handle scrolling gracefully if squished */
+#game-container {
+    height: 100dvh !important;
+    max-height: 100dvh !important;
+    overflow-y: auto !important; 
+    overflow-x: hidden !important;
+    -webkit-overflow-scrolling: touch; 
+    /* THE FIX: Removed the buggy 'display' rules so it correctly stays hidden on boot! */
+    justify-content: flex-start !important;
+}
+
+/* 3. Protect the essential bars from ever shrinking */
+.header, .controls, .footer-row {
+    flex-shrink: 0 !important; 
+}
+.measure-wrapper {
+    margin-top: auto !important;
+    margin-bottom: auto !important;
+    flex-shrink: 0 !important;
 }
 
 /* 5. Targeting the name label (the last div in the card) */
@@ -329,10 +376,9 @@ button,
     overflow: hidden;
     text-overflow: ellipsis;
 }
-    .beat-cell { 
-        height: 180px; 
-    }
-    .beat-cell svg { width: 80px; }
+#time-sig-panel {
+    margin-bottom : 0 !important; /* Nudged up to better hug the measure */
+}
 
     /* 4. Make the UI labels and buttons bigger */
     #status-banner { font-size: 2rem; margin-bottom: 30px; }
@@ -355,36 +401,57 @@ button,
 }
     /* 5. Scale the text inside the cells */
     .beat-cell div { font-size: 12px !important; }
-}
+
         /* This makes the labels slightly smaller when there are lots of boxes */
 .beat-cell div {
     font-size: 0.5rem;
     text-align: center;
 }
-        /* Keeps boxes from getting too tall or too squished */
-.beat-cell {
-    flex: 1 1 0; /* Lets them stretch and shrink evenly */
-    min-width: 0; /* Removes the 60px lock so 6/4 and 7/4 time can fit! */
-    height: 100px;
-    border: 4px solid #1a1a30;
-    box-sizing: border-box;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
+/* --- GLOBAL BEAT CELL SCALING --- */
+        .beat-cell {
+            flex: 1 1 0; 
+            min-width: 0; 
+            height: clamp(80px, 15vh, 160px); /* 15vh perfectly hits ~150px on iPad Portrait! */
+            border: 4px solid #1a1a30;
+            box-sizing: border-box;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            transition: height 0.3s ease;
+        }
+
+        .beat-cell svg {
+            /* We tie the size to HEIGHT, so it never distorts */
+            height: clamp(40px, 8vh, 85px) !important; 
+            width: auto !important; 
+            max-width: 90%;
+            transform: none !important; /* Instantly kills any lingering scale bugs globally */
+        }
+/* --- ADVANCED RHYTHM SCROLLBOX --- */
+#picker-adv {
+    max-height: 30vh !important; /* Bumped up slightly */
+    min-height: 18vh !important; /* THE FIX: Never shrink smaller than a card! */
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch; 
+    align-content: flex-start; 
+    border-bottom: 2px dashed #444;
+    padding-bottom: 10px !important;
+    margin-bottom: 15px !important;
 }
 
-.beat-cell svg {
-    max-width: 90%; /* Scales the icons down automatically */
-    height: auto;
-}
+/* Custom Arcade Scrollbar Styling */
+#picker-adv::-webkit-scrollbar { width: 6px; }
+#picker-adv::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 4px; }
+#picker-adv::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 4px; }
+
 #settings-btn {
             position: absolute;
             right: 5px; /* Adjusted to balance the new padding */
             top: 50%;
             font-size: 24px;
-            cursor: pointer
+            cursor: pointer;
             
             /* --- THE MASSIVE HITBOX --- */
              padding: 10px 0 0 9px;
@@ -413,6 +480,9 @@ button,
 .settings-content {
     background: rgba(26, 26, 46, 0.7); 
     border: 1px solid rgba(255, 255, 255, 0.15);
+    max-height: 85dvh !important; /* Never let it be taller than the screen */
+    overflow-y: auto !important;  /* Turn on internal scrolling */
+    overscroll-behavior: contain; /* Prevents background from scrolling */
     padding: 24px; border-radius: 12px; width: 90%; max-width: 320px;
     box-shadow: 0 20px 40px rgba(0,0,0,0.8), inset 0 0 20px rgba(255,255,255,0.02); 
     text-align: center;
@@ -632,22 +702,11 @@ input[type=range] { width: 100%; accent-color: var(--primary); cursor: pointer; 
             }
             
             /* 2. The Sequence Beat Cells */
-            .beat-cell {
-                height: 130px !important; 
-            }
-            .beat-cell svg {
-                width: 65px !important; 
-            }
+            .beat-cell { height: 130px !important; }
+            .beat-cell svg { height: 75px !important; width: auto !important; }
 
-            /* 3. The Rhythm Cards (Perfect 100px Squares) */
-            .rhythm-card {
-                width: 100px !important;
-                height: 100px !important;
-                flex: 0 0 auto !important; 
-            }
-            .rhythm-card svg {
-                height: 50px !important; 
-            }
+            /* 3. The Rhythm Cards */
+            
             .picker-container {
                 max-width: 650px !important; 
             }
@@ -655,20 +714,13 @@ input[type=range] { width: 100%; accent-color: var(--primary); cursor: pointer; 
 
             /* Desktop Sound Reminder Scaling */
             .sound-reminder {
-                font-size: 2rem !important;
-                margin-top: 65px !important;
-                gap: 50px !important;
-                transform: scale(1.5);
-            }
-            .sound-reminder svg {
-                width: 28px !important;
-                height: 28px !important;
+               font-size: 1.05rem !important; /* Controls both text AND icon size now */
+                margin-top: 60px !important;
+                gap: 20px !important;
+                transform: none !important; /* Kills the buggy scaling */
             }
             
-            /* 1. DESKTOP DEFAULT */
-            .beat-cell .svg-boo  { transform: scale(0.75); } 
-            .beat-cell .svg-rest { transform: scale(0.65); } 
-            .beat-cell .svg-nana { transform: scale(0.80); } 
+       
         }
 
         /* 2. IPAD / TABLET (601px to 1024px) */
@@ -689,181 +741,159 @@ input[type=range] { width: 100%; accent-color: var(--primary); cursor: pointer; 
                 margin-top: 45px !important; /* Pushes it further down from the start button */
                 gap: 12px !important;
             }
-            .sound-reminder svg {
-                width: 24px !important;
-                height: 24px !important;
+            #picker-adv {
+                   max-width: 750px !important;
             }
-            .rhythm-card { 
-                width: 85px; 
-                height: 105px; 
-                /* THE FIX: This tells the browser "Don't ever try to scroll when this card is touched" */
-    touch-action: none;
-            }
-           .beat-cell .svg-boo  { transform: scale(0.60); }
-    .beat-cell .svg-rest { transform: scale(0.55); }
-    .beat-cell .svg-nana { transform: scale(0.75); }
+           .measure-wrapper {
+    width: 100%;
+    max-width: 750px !important; /* Locks the width to a perfect mobile-sized column, even on a 4K monitor */
 }
+            
+
             .mascot-box {
-                font-size: 1vw;
+                font-size: 0.8vw;
             }
         }
 
-      /* 3. IPHONE / MOBILE (600px and under) */
+      /* --------------------------------------------------- */
+        /* --- 1. MOBILE PORTRAIT (Vertical iPhone) --- */
+        /* --------------------------------------------------- */
         @media (max-width: 600px) {
+            #game-container { padding-bottom: 10px !important; }
 
-            /* --- THE MAGNET FIX (Centered & Clumped) --- */
-           #game-container {
-                /* 1. Add a more aggressive bottom buffer for the iPhone Home Bar */
-                padding-bottom: max(40px, env(safe-area-inset-bottom)) !important;
-                justify-content: center !important; /* Keeps it centered */
-            }
-            .measure-wrapper {
-                flex-grow: 0 !important;
-                margin: 10px 0 5px 0 !important; /* Only 5px of gap below it! */
-            }
-
-            #central-light {
-                margin: 0 auto 5px auto !important; /* 0px top margin pulls it flush to the measure */
-                height: 6px !important; 
-                width: 100% !important; 
-            }
-
-            .controls { 
-                padding: 15px !important; 
-                margin-top: 0px !important; 
-                margin-bottom: 5px !important; /* Tiny gap before the footer */
-            }
-
-            .footer-row {
-                margin-top: 0px !important;
-                padding-top: 0px !important;
-            }
-
-            .support-link { 
-                /* 3. Add a tiny bit of extra padding to lift it off the floor */
-                margin-top: 5px !important;
-                padding-bottom: 10px !important; 
-                display: block; /* Ensures the height is respected */
-            }
-
-            .beat-cell { 
-                /* 2. Shave 7px off to give the footer more breathing room */
-                height: 98px !important; 
-            }
-            .beat-cell svg { 
-                width: 40px; 
-            }
-
-
-            /* --- YOUR EXISTING VISUALS & SCALING (UNTOUCHED) --- */
-
-            /* Tame the title and tighten the shadow for small screens */
-            .main-title { 
-                font-size: 1.5rem !important; 
-                text-shadow: 0 0 10px var(--primary), 4px 4px 0px #000; 
-                margin-bottom: 10px; 
+            /* TITLE SCREEN - THE LOGICAL STACK (PROPORTIONAL HIERARCHY) */
+            #start-screen { 
+                padding: 4vh 15px 2vh 15px !important; 
+                justify-content: flex-start !important; 
             }
             
-            /* Tame the subtitle */
-            .sub-title { 
-                font-size: 0.7rem; 
-                margin: 15px 0 25px 0; 
-                letter-spacing: 4px; 
-            }
-            
-            /* Tame the big green START button */
-            .press-start { 
-                font-size: 1.1rem !important; 
-                padding: 15px 30px !important; 
-                border-width: 4px; 
-                box-shadow: 0 6px 0 #064d3b; /* Shrinks the 3D block */
-            }
-            /* Tame the neon BOOT button */
-            .boot-btn { 
-                font-size: 1.1rem !important; 
-                padding: 15px 30px !important; 
-                border-width: 3px; 
-                box-shadow: 0 0 10px rgba(93, 173, 226, 0.3), inset 0 0 10px rgba(93, 173, 226, 0.3); /* Restores the neon glow! */
-            }
-             #toggle-btn { 
-                font-size: 1.1rem !important; 
-                padding: 15px 30px !important; 
-                border-width: 4px; 
-                box-shadow: 0 6px 0 #064d3b; 
-            }
-            
-            /* Shrink the tiny "TAP TO START" span if it's inside the button */
-            .press-start span, .boot-btn span {
-                font-size: 0.6em !important;
-            }
-            
-            /* Shrink the ASCII Mascot */
+            /* Mascot scaled perfectly to not overwhelm the title */
             .mascot-box { 
-                font-size: 1.2vw; 
-                margin-bottom: 20px;
-            }
-            .beat-cell .svg-boo  { transform: scale(0.65); }
-            .beat-cell .svg-rest { transform: scale(0.65); }
-            .beat-cell .svg-nana { transform: scale(0.85); }
-            
-            /* Give the rows some breathing room */
-            .picker-container { 
-                gap: 10px; 
-            }
-            /* Shrink the rhythm picker cards */
-            .rhythm-card { 
-                /* 33.33% forces exactly 3 cards per row maximum */
-                flex: 1 1 calc(33.33% - 15px); 
-                min-width: 85px;   /* Keeps them chunky and tap-friendly */
-                max-width: 100px;  /* Prevents the bottom two from stretching out horizontally */
-                height: 90px;      /* Restores that nice arcade button height */
-                margin: 0;         /* The 'gap' property above handles the spacing now */
-                /* THE FIX: This tells the browser "Don't ever try to scroll when this card is touched" */
-    touch-action: none;
-            }
-            .rhythm-card svg { 
-                height: 40px; 
-            }
-            /* --- THE ADVANCED MENU PYRAMID (5 Top, 4 Bottom) --- */
-            /* Detects if there are 6 or more cards, and magically applies this tighter layout */
-            .picker-container:has(.rhythm-card:nth-child(6)) .rhythm-card {
-                flex: 1 1 calc(20% - 10px); /* Forces exactly 5 cards per row */
-                min-width: 55px;  /* Shrunk down slightly to fit 5 across an iPhone */
-                max-width: 70px;  /* Prevents the bottom row from stretching too wide */
-                height: 75px;     /* Slightly shorter to save vertical screen space */
-                margin: 0;
+                font-size: 6px !important; 
+                margin-top: 2vh !important; 
+                margin-bottom: 15px !important; 
+                line-height: 1.2; 
             }
             
-            /* Scale the icons down to match the new advanced card size */
-            .picker-container:has(.rhythm-card:nth-child(6)) .rhythm-card svg {
-                height: 32px; 
+            /* Toned down from 3.2rem. Big, bold, but balanced. */
+            .main-title { 
+                font-size: 2.4rem !important; 
+                line-height: 1.1 !important; 
+                margin-bottom: 10px !important; 
             }
+            
+            /* Distinct gap underneath subtitle before the button */
+            .sub-title { 
+                font-size: 0.9rem !important; 
+                margin-bottom: 6vh !important; 
+                letter-spacing: 4px !important;
+            }
+            
+            /* THE FIX: margin-bottom auto acts as a massive spring, pushing the bottom cluster strictly to the floor so they NEVER hug the button! */
+            .press-start { 
+                font-size: 1.2rem !important; 
+                padding: 15px 35px !important; 
+                margin-bottom: auto !important; 
+            }
+            
+            /* Clean, balanced bottom cluster */
+            .sound-reminder { 
+                font-size: 0.8rem !important; 
+                margin-top: 0 !important; 
+                margin-bottom: 15px !important; 
+                gap: 8px !important; 
+            }
+            .sound-reminder svg { width: 1.2em !important; height: 1.2em !important; }
+            
+            .version-tracker { 
+                font-size: 0.65rem !important; 
+                margin-top: 0 !important; 
+                padding-bottom: 10px !important; 
+                opacity: 0.7; 
+            }
+            
+
+            /* COMPACT HEADER */
+            .header { padding: 8px 10px !important; }
+            .header h1 { font-size: 1.1rem !important; }
+
+            /* ZOOM OUT: GAME BOARD (Dynamic Screen Scaling) */
+            .beat-cell { height: min(11vh, 75px) !important; max-height: 75px !important; }
+            .beat-cell svg { height: min(6vh, 45px) !important; width: auto !important; }
+
+           /* ZOOM OUT: TIGHTER CARDS */
+           
+
+            /* ADVANCED MENU DYNAMIC FLOOR */
+            #picker-adv {
+                max-height: 25vh !important;
+                min-height: min(16vw, 70px) !important; 
+                padding-bottom: 5px !important;
+                margin-bottom: 0 !important;
+                gap: 5px !important;
+            }
+
+            /* SQUISHED CONTROLS */
+            .controls { padding: 8px !important; gap: 6px !important; margin-bottom: 0 !important; }
+            .controls .patch-btn, #toggle-btn { padding: 8px 12px !important; font-size: 0.75rem !important; }
+            .controls .btn-icon { width: 36px !important; height: 36px !important; }
+            .controls .btn-icon svg { width: 18px !important; height: 18px !important; }
+
+            .modal-content { width: 95%; padding: 15px; }
         }
-        .sound-reminder {
-                opacity: 0.7 !important;
-                margin-top: 10px !important;
-                font-size: 0.5rem !important;
+
+       /* --------------------------------------------------- */
+        /* --- 2. MOBILE LANDSCAPE (Horizontal iPhone) --- */
+        /* --------------------------------------------------- */
+        @media (max-height: 500px) and (orientation: landscape) {
+            #game-container { padding-bottom: 10px !important; }
+
+            /* TITLE SCREEN: The "Logical Stack" */
+            .title-screen { padding: 10px !important; justify-content: center !important; }
+            
+            .mascot-box {
+                display: block !important; /* BANANA IS BACK */
+                font-size: min(1.2vh, 3.5px) !important; /* Dynamically scales so it NEVER cuts off! */
+                line-height: 1.1;
+                margin-bottom: 5px !important;
             }
-            .sound-reminder svg {
-                margin-bottom: -1px !important;
-                width: 12px !important;
-                height: 12px !important;
+            .main-title { font-size: 1.2rem !important; margin: 0 !important; }
+            .title-screen p { font-size: 0.6rem !important; margin: 2px 0 8px 0 !important; } /* Subtitle */
+            .press-start { font-size: 0.8rem !important; padding: 6px 25px !important; margin: 0 auto 10px auto !important; }
+
+            .sound-reminder {
+                font-size: 0.65rem !important;
+                margin-top: auto !important; /* Shoves it away from the center cluster */
+                margin-bottom: 10px !important; /* Distinct breathing room above version */
             }
-        /* =========================================
-           GLOBAL FLOATING ELEMENTS
-           ========================================= */
-        .version-tracker {
-            position: absolute;
-            bottom: 15px;
-            right: 20px;
-            font-family: 'Press Start 2P', monospace; /* Keeps it on-theme */
-            font-size: 8px;
-            color: #ffffff;
-            opacity: 0.4; /* Makes it subtly fade into the background */
-            pointer-events: none; /* PRO TIP: Prevents it from hijacking mobile taps */
-            letter-spacing: 1px;
-            z-index: 10;
+            .version-footer { margin-top: 0 !important; font-size: 0.5rem !important; padding-bottom: 5px !important; }
+
+            /* 3. GAME BOARD: The Extreme "Zoomed Out" View */
+            .header { padding: 4px 10px !important; margin-bottom: 2px !important; }
+            .header h1 { font-size: 0.9rem !important; }
+
+            .measure-wrapper { margin: 2px auto !important; }
+
+            /* Squeeze the grid to fit screen */
+            .beat-cell { height: 40px !important; max-height: 40px !important; border-width: 2px !important; }
+            .beat-cell svg { height: 26px !important; width: auto !important; }
+
+            /* Squeeze the cards to fit screen */
+           
+
+            /* Advanced menu stays tight */
+            #picker-adv { min-height: 55px !important; max-height: 120px !important; margin-bottom: 5px !important; gap: 4px !important; }
+
+            /* Squeeze the controls */
+            .controls { padding: 4px !important; gap: 6px !important; margin-bottom: 5px !important; }
+            .controls .patch-btn, #toggle-btn { padding: 4px 12px !important; font-size: 0.7rem !important; }
+            .controls .btn-icon { width: 30px !important; height: 30px !important; border-width: 2px !important; }
+            .controls .btn-icon svg { width: 14px !important; height: 14px !important; }
+
+            /* Status light shrink */
+            .status-light { width: 10px !important; height: 10px !important; margin-bottom: 2px !important; }
         }
+
 /* 1. DESKTOP-ONLY HOVER: This only triggers with a mouse */
         @media (hover: hover) {
             #lock-btn:hover, #settings-btn:hover, .rhythm-card:hover, .patch-btn:hover {
@@ -921,19 +951,36 @@ input[type=range] { width: 100%; accent-color: var(--primary); cursor: pointer; 
             }
             #lock-btn.locked:not(:active):not(.pressed) svg { fill: var(--action) !important; }
         }
-  /* =========================================
+ /* =========================================
            4. LANDSCAPE / SHORT SCREEN FIX 
            (Final Optical "Nudge" Alignment)
            ========================================= */
         @media (max-height: 500px) and (orientation: landscape) {
             
-            #game-container {
-                padding-top: 2px !important;
-                padding-bottom: max(2px, env(safe-area-inset-bottom)) !important;
-                justify-content: center !important; 
-                animation: landscape-snap 0.5s ease-out;
+            /* --- THE DEFINITIVE iOS SCROLL BUG FIX --- */
+            /* Force block layout to kill Safari's negative-Y flex centering bug! */
+            html, body {
+                display: block !important; 
+                height: auto !important;
+                min-height: 100dvh !important;
+                overflow-x: hidden !important;
+                overflow-y: auto !important; 
             }
 
+            #game-container {
+             
+                flex-direction: column !important;
+                height: auto !important;
+                min-height: 100dvh !important;
+                max-height: none !important;
+                overflow: visible !important;
+                /* Bumped top padding to 15px so the top sliver is completely safe and tappable */
+                padding-top: max(15px, env(safe-area-inset-top)) !important;
+                padding-bottom: max(40px, env(safe-area-inset-bottom)) !important;
+                justify-content: flex-start !important; 
+                align-items: center !important; /* Keep the UI perfectly horizontally centered */
+                animation: landscape-snap 0.5s ease-out;
+            }
       #start-screen {
                 justify-content: center !important; 
                 padding-top: 0 !important;
@@ -988,10 +1035,7 @@ input[type=range] { width: 100%; accent-color: var(--primary); cursor: pointer; 
                 gap: 6px !important; 
             }
 
-            .sound-reminder svg {
-                width: 12px !important; 
-                height: 12px !important;
-            }
+           
             /* 2. NUDGE UP: Banner */
             .state-banner, #state-display {
                 font-size: 0.8rem !important;
@@ -1036,40 +1080,14 @@ input[type=range] { width: 100%; accent-color: var(--primary); cursor: pointer; 
                 margin-bottom: 0px !important;
             }
 
-            /* 6. NUDGE DOWN: Rhythm Cards */
+           /* 6. NUDGE DOWN: Rhythm Cards */
             .picker-container {
-                gap: 4px;
+                gap: 6px !important;
                 margin-top: 6px !important; 
             }
 
-            .rhythm-card {
-                height: 52px !important; 
-                min-width: 50px !important;
-                padding: 4px !important;
-                gap: 1px !important;
-                /* THE FIX: This tells the browser "Don't ever try to scroll when this card is touched" */
-    touch-action: none;
-            }
-            .rhythm-card svg {
-                height: 30px !important; 
-                width: auto !important;
-            }
-            .rhythm-card div:last-child {
-                font-size: 5px !important; 
-                line-height: 1;
-                margin-top: 0 !important;
-            }
-
-            /* Advanced Cards */
-            .picker-container:has(.rhythm-card:nth-child(6)) .rhythm-card {
-                height: 46px !important; 
-                flex: 1 1 calc(20% - 6px) !important; 
-                min-width: 58px !important; 
-            }
-            .picker-container:has(.rhythm-card:nth-child(6)) .rhythm-card svg {
-                height: 26px !important; 
-                max-width: 90% !important;
-            }
+            
+            /* (Deleted the buggy advanced pseudo-selectors that were crushing the cards!) */
 
             /* 7. Action Buttons & Footer */
             #toggle-btn {
@@ -1107,10 +1125,25 @@ input[type=range] { width: 100%; accent-color: var(--primary); cursor: pointer; 
            IPAD LANDSCAPE STABILITY (768px - 1366px)
            ========================================= */
         @media (min-width: 768px) and (max-height: 1024px) and (orientation: landscape) {
-            
+            /* --- THE DEFINITIVE iOS SCROLL BUG FIX (Now applied to iPad!) --- */
+            html, body {
+                display: block !important; 
+                height: auto !important;
+                min-height: 100dvh !important;
+                overflow-x: hidden !important;
+                overflow-y: auto !important; 
+            }
             #game-container {
-                padding-top: 20px !important;
-                justify-content: center !important; 
+                
+                flex-direction: column !important;
+                height: auto !important;
+                min-height: 100dvh !important;
+                max-height: none !important;
+                overflow: visible !important;
+                padding-top: max(20px, env(safe-area-inset-top)) !important;
+                padding-bottom: max(40px, env(safe-area-inset-bottom)) !important;
+                justify-content: flex-start !important; 
+                align-items: center !important;
             }
 
             #start-screen {
@@ -1127,12 +1160,12 @@ input[type=range] { width: 100%; accent-color: var(--primary); cursor: pointer; 
 
             .sub-title {
                 font-size: 0.85rem !important; 
-                margin: 2px 0 8px 0 !important;
+                margin: 2px 0 55px 0 !important;
                 letter-spacing: 3px !important;
             }
 
             .mascot-box {
-                font-size: 4.5px !important; 
+                font-size: 0.5vw !important; 
                 margin-bottom: 2px !important;
                 translateY(10px) !important; 
             }
@@ -1151,35 +1184,16 @@ input[type=range] { width: 100%; accent-color: var(--primary); cursor: pointer; 
                 scale: 0.7;/* Pushed away from the start button */
                 gap: 12px !important;
             }
-            .sound-reminder svg {
-                width: 24px !important;
-                height: 24px !important;
-                        margin-bottom: -4px;
-            }
+            
 
-            .beat-cell {
-                height: 110px !important; 
-            }
-            .beat-cell svg {
-                width: 50px !important;
-            }
+            .beat-cell { height: 110px !important; }
+            .beat-cell svg { height: 60px !important; width: auto !important; }
 
             .controls {
                 padding: 20px !important;
                 margin-top: 15px !important;
             }
 
-            .rhythm-card {
-                height: 90px !important; 
-                min-width: 80px !important;
-                padding: 10px !important;
-                gap: 5px !important;
-                /* THE FIX: This tells the browser "Don't ever try to scroll when this card is touched" */
-    touch-action: none;
-            }
-            .rhythm-card svg {
-                height: 45px !important;
-            }
             .rhythm-card div:last-child {
                 font-size: 8px !important; 
                 margin-top: 4px !important;
@@ -1392,14 +1406,21 @@ input[type=range] { width: 100%; accent-color: var(--primary); cursor: pointer; 
     </div>
     <script>
     // --- APP CONFIG --- Updade Game Version Here
-    const GAME_VERSION = "v1.1.0";
+    const GAME_VERSION = "v1.2";
         // Unlocks CSS :active states on iOS Safari
     document.body.addEventListener('touchstart', function() {}, {passive: true});
     let audioCtx, masterGain, compressor,masterVolumeNode;
     const light = document.getElementById('central-light'), toggleBtn = document.getElementById('toggle-btn'), slider = document.getElementById('tempo-slider'), patchBtns = document.querySelectorAll('.patch-btn'), lockBtn = document.getElementById('lock-btn'), lockIcon = document.getElementById('lock-icon');
     let isRunning = false, tempo = 80, secondsPerBeat = 0.75, nextNoteTime = 0, currentBeatIndex = 0, isTeacherTurn = true, currentRhythm = [], soundType = 'classic', isLocked = false, isFirstBoot = true;
-    let turnHistory = []; // NEW: Stores the patterns for the student to repeat
-    let lastTurnHistory = []; // NEW: Our "Buzzer Beater" backup!
+    let turnHistory = []; 
+    let lastTurnHistory = []; 
+    let hasUserModifiedBoard = false; 
+
+    // --- THE MISSING AUDIO TRACKERS (This fixes the drag & drop crash!) ---
+    let activeAudioNodes = {};
+    let activeLightTimeouts = {};
+    let scheduledBeatTimes = {};
+
     // NEW: Time Signature State
     let beatsPerMeasure = 4;
     const timeSigSelect = document.getElementById('time-sig-select');
@@ -1545,7 +1566,7 @@ function playMetronome(isDownbeat, time) {
         
         Nana: `<svg class="svg-nana" viewBox="0 0 80 100" width="45"><ellipse cx="16" cy="82" rx="10" ry="7" fill="white" transform="rotate(-15, 16, 82)"/><rect x="22" y="20" width="4" height="62" fill="white"/><ellipse cx="56" cy="82" rx="10" ry="7" fill="white" transform="rotate(-15, 56, 82)"/><rect x="62" y="20" width="4" height="62" fill="white"/><rect x="22" y="20" width="44" height="10" fill="white"/></svg>`, 
         
-        Gullible: `<svg viewBox="0 0 100 100" width="55"><text x="50" y="16" fill="white" font-size="16" font-family="'Press Start 2P'" text-anchor="middle">3</text><ellipse cx="13" cy="82" rx="8" ry="6" fill="white" transform="rotate(-15, 13, 82)"/><rect x="17" y="24" width="3" height="58" fill="white"/><ellipse cx="46" cy="82" rx="8" ry="6" fill="white" transform="rotate(-15, 46, 82)"/><rect x="50" y="24" width="3" height="58" fill="white"/><ellipse cx="79" cy="82" rx="8" ry="6" fill="white" transform="rotate(-15, 79, 82)"/><rect x="83" y="24" width="3" height="58" fill="white"/><rect x="17" y="24" width="69" height="8" fill="white"/></svg>`, 
+        Gullible: `<svg viewBox="0 0 100 100" width="55"><text x="50" y="19" fill="white" font-size="14" font-family="'Press Start 2P'" text-anchor="middle">3</text><ellipse cx="13" cy="82" rx="8" ry="6" fill="white" transform="rotate(-15, 13, 82)"/><rect x="17" y="24" width="3" height="58" fill="white"/><ellipse cx="46" cy="82" rx="8" ry="6" fill="white" transform="rotate(-15, 46, 82)"/><rect x="50" y="24" width="3" height="58" fill="white"/><ellipse cx="79" cy="82" rx="8" ry="6" fill="white" transform="rotate(-15, 79, 82)"/><rect x="83" y="24" width="3" height="58" fill="white"/><rect x="17" y="24" width="69" height="8" fill="white"/></svg>`,
         
         LiarLiar: `<svg viewBox="0 0 100 100" width="55"><ellipse cx="11" cy="82" rx="7" ry="5" fill="white" transform="rotate(-15, 11, 82)"/><rect x="15" y="20" width="3" height="62" fill="white"/><ellipse cx="36" cy="82" rx="7" ry="5" fill="white" transform="rotate(-15, 36, 82)"/><rect x="40" y="20" width="3" height="62" fill="white"/><ellipse cx="61" cy="82" rx="7" ry="5" fill="white" transform="rotate(-15, 61, 82)"/><rect x="65" y="20" width="3" height="62" fill="white"/><ellipse cx="86" cy="82" rx="7" ry="5" fill="white" transform="rotate(-15, 86, 82)"/><rect x="90" y="20" width="3" height="62" fill="white"/><rect x="15" y="20" width="78" height="7" fill="white"/><rect x="15" y="32" width="78" height="7" fill="white"/></svg>`, 
         
@@ -1709,6 +1730,7 @@ function playMetronome(isDownbeat, time) {
         card.addEventListener('touchstart', handleTouchStart, { passive: true });
         card.addEventListener('touchmove', handleTouchMove, { passive: false });
         card.addEventListener('touchend', handleTouchEnd);
+        card.addEventListener('touchcancel', handleTouchCancel); // <--- ADD THIS LINE
 
         card.onclick = () => {card.classList.toggle('selected'); initAudio(); };
 
@@ -1806,21 +1828,30 @@ function playMetronome(isDownbeat, time) {
                     const mIdx = parseInt(parts[2]);
                     const bIdx = parseInt(parts[3]);
                     
-                    if (RHYTHM_CONFIG[draggedRhythmType]) {
-                        // A. Update live game state
-                        turnHistory[mIdx][bIdx] = draggedRhythmType;
-                        // B. Update visual UI
-                        currentDropTarget.innerHTML = SVGS[draggedRhythmType];
-                        // C. Animate the snap
-                        currentDropTarget.style.transform = 'scale(1.15)';
-                        setTimeout(() => currentDropTarget.style.transform = '', 150);
-                    }
+                    // Route to our new universal drop handler
+                    handleBoardDrop(mIdx, bIdx, draggedRhythmType, currentDropTarget);
                 }
                 currentDropTarget = null;
             }
             
             // Prevent the drag from accidentally registering as a "click" and selecting the card
             if (e.cancelable) e.preventDefault(); 
+        }
+        
+        isDragging = false;
+        draggedRhythmType = null;
+    }
+// --- THE FIX: Cleans up the ghost if iOS interrupts the drag! ---
+    function handleTouchCancel(e) {
+        if (touchGhost) {
+            touchGhost.remove();
+            touchGhost = null;
+        }
+        this.style.opacity = '1'; // Restores the original card
+        
+        if (currentDropTarget) {
+            currentDropTarget.classList.remove('drop-target');
+            currentDropTarget = null;
         }
         
         isDragging = false;
@@ -1871,6 +1902,58 @@ function playMetronome(isDownbeat, time) {
         turnHistory = tempHistory;
     }
 
+    function handleBoardDrop(mIdx, bIdx, droppedType, dropTargetElement) {
+        if (RHYTHM_CONFIG[droppedType]) {
+            // 1. Update the Data and the UI
+            turnHistory[mIdx][bIdx] = droppedType;
+            dropTargetElement.innerHTML = SVGS[droppedType];
+
+            // 2. Raise the flag if they are editing while stopped
+            if (!isRunning) hasUserModifiedBoard = true;
+
+            // --- 3. MID-BEAT AUDIO REPLACEMENT MAGIC ---
+            if (isRunning && isTeacherTurn) {
+                const beatKey = `${mIdx}-${bIdx}`;
+                const beatStartTime = scheduledBeatTimes[beatKey];
+
+                // If this beat is currently playing, or scheduled just ahead
+                if (beatStartTime !== undefined && audioCtx.currentTime < beatStartTime + secondsPerBeat) {
+
+                    // A. Kill pending audio
+                    if (activeAudioNodes[beatKey]) {
+                        activeAudioNodes[beatKey].forEach(node => {
+                            // Only kill notes that haven't played yet
+                            if (audioCtx.currentTime < node.time - 0.01) node.stop();
+                        });
+                    }
+                    // B. Kill pending lights
+                    if (activeLightTimeouts[beatKey]) {
+                        activeLightTimeouts[beatKey].forEach(tid => clearTimeout(tid));
+                    }
+
+                    // Clear the tracking arrays
+                    activeAudioNodes[beatKey] = [];
+                    activeLightTimeouts[beatKey] = [];
+
+                    // C. Inject the new rhythm's remaining notes dynamically!
+                    RHYTHM_CONFIG[droppedType].offsets.forEach(offset => {
+                        const hitTime = beatStartTime + (offset * secondsPerBeat);
+                        // ONLY schedule notes that fall in the future!
+                        if (hitTime > audioCtx.currentTime + 0.02) {
+                            playTone(600, hitTime, 0.2, 0.1, false, beatKey);
+                            const tid = triggerLight(hitTime);
+                            if (tid) activeLightTimeouts[beatKey].push(tid);
+                        }
+                    });
+                }
+            }
+
+            // 4. The satisfying "Drop" bounce animation
+            dropTargetElement.style.transform = 'scale(1.15)';
+            setTimeout(() => dropTargetElement.style.transform = '', 150);
+        }
+    }
+
     function buildSequenceUI() {
         const container = document.getElementById('sequence-container');
         if (!container) return;
@@ -1911,21 +1994,11 @@ function playMetronome(isDownbeat, time) {
                 // 3. Handle the actual drop
                 c.addEventListener('drop', (e) => {
                     e.preventDefault();
-                    c.classList.remove('drop-target'); // Kill the glow
-                    
+                    c.classList.remove('drop-target'); 
                     const droppedType = e.dataTransfer.getData('text/plain');
                     
-                    if (RHYTHM_CONFIG[droppedType]) {
-                        // A. Instantly update the live array for the audio loop!
-                        turnHistory[mIdx][i] = droppedType;
-                        
-                        // B. Instantly update the visuals!
-                        c.innerHTML = SVGS[droppedType];
-                        
-                        // C. Add a little tactile "pop" to confirm the drop
-                        c.style.transform = 'scale(1.15)';
-                        setTimeout(() => c.style.transform = '', 150);
-                    }
+                    // Route to our new universal drop handler
+                    handleBoardDrop(mIdx, i, droppedType, c);
                 });
 
                 row.appendChild(c);
@@ -1988,12 +2061,19 @@ function playMetronome(isDownbeat, time) {
             const currentMeasureBeats = turnHistory[beatMeasureIdx] || [];
             const beatType = currentMeasureBeats[beatIdx] || "Rest";
 
+            // --- RECORD SCHEDULING TIME FOR SNAPPY DRAG & DROP ---
+            const beatKey = `${beatMeasureIdx}-${beatIdx}`;
+            scheduledBeatTimes[beatKey] = nextNoteTime;
+            activeAudioNodes[beatKey] = [];
+            activeLightTimeouts[beatKey] = [];
+
             // 3. Play Teacher Audio & Light
             if (beatTeacherState && beatType !== "Rest" && RHYTHM_CONFIG[beatType]) {
                 RHYTHM_CONFIG[beatType].offsets.forEach(offset => {
                     const hitTime = nextNoteTime + (offset * secondsPerBeat);
-                    playTone(600, hitTime, 0.2, 0.1, false);
-                    triggerLight(hitTime); // Now it works!
+                    playTone(600, hitTime, 0.2, 0.1, false, beatKey); // Passes the beat tracker
+                    const tid = triggerLight(hitTime);
+                    if (tid) activeLightTimeouts[beatKey].push(tid); // Saves the light tracker
                 });
             }
 
@@ -2035,19 +2115,19 @@ function playMetronome(isDownbeat, time) {
         if (isRunning) requestAnimationFrame(schedule);
     }
 
-function playTone(freq, time, vol = 0.2, dur = 0.1, isMetronome = false) { 
+function playTone(freq, time, vol = 0.2, dur = 0.1, isMetronome = false, beatKey = null) { 
         if(!audioCtx) return; 
         
         const t = Math.max(time, audioCtx.currentTime + 0.005);
         const destination = (typeof masterGain !== 'undefined') ? masterGain : audioCtx.destination;
         
-        // 1. Oscillator (Tone) & its Gain
+        const sourcesToStop = []; // <--- NEW: Collects nodes so we can kill them mid-beat!
+
         const osc = audioCtx.createOscillator();
         const g = audioCtx.createGain(); 
+        sourcesToStop.push(osc); 
         
-        // --- THE GOLDEN SHIELD: Force silent default ---
         g.gain.value = 0; 
-        
         let finalVol = isMetronome ? vol : (vol * rhythmVolume);
         
         g.gain.setValueAtTime(0, t); 
@@ -2056,14 +2136,14 @@ function playTone(freq, time, vol = 0.2, dur = 0.1, isMetronome = false) {
         g.gain.linearRampToValueAtTime(0, t + dur + 0.01); 
         g.connect(destination);
 
-        // 2. Noise (The Texture)
         const noise = audioCtx.createBufferSource();
-        if (window.noiseBuffer) noise.buffer = window.noiseBuffer;
+        if (window.noiseBuffer) {
+            noise.buffer = window.noiseBuffer;
+            sourcesToStop.push(noise); 
+        }
         const noiseGain = audioCtx.createGain();
         
-        // --- THE GOLDEN SHIELD: Force silent default ---
         noiseGain.gain.value = 0; 
-        
         noiseGain.gain.setValueAtTime(0, t); 
         noiseGain.gain.linearRampToValueAtTime(finalVol * 0.1, t + 0.005);
         noiseGain.gain.exponentialRampToValueAtTime(0.0001, t + dur); 
@@ -2071,7 +2151,6 @@ function playTone(freq, time, vol = 0.2, dur = 0.1, isMetronome = false) {
         noiseGain.connect(destination);
         if (window.noiseBuffer) noise.connect(noiseGain);
 
-        // 3. Sound Logic
         let currentSound = (typeof soundType !== 'undefined') ? soundType : 'classic';
         const soundSelect = document.getElementById('sound-select');
         if (soundSelect) currentSound = soundSelect.value;
@@ -2079,33 +2158,26 @@ function playTone(freq, time, vol = 0.2, dur = 0.1, isMetronome = false) {
         if (currentSound === 'classic') {
             osc.type = 'triangle';
             osc.frequency.setValueAtTime(freq, t);
-            osc.connect(g); // Route directly to volume
-            
+            osc.connect(g); 
         } else if (currentSound === 'bloop') {
             osc.type = 'sine';
             osc.frequency.setValueAtTime(freq, t);
-            osc.connect(g); // Route directly to volume
-            
-} else {
-            // --- THE SANDPAPER CLAVE (Balanced & Textured) ---
-            
-            // 1. THE WOODEN BODY (Triangle + Sine Blend)
-            // Triangle waves have a softer, more "hollow" character than square or sine.
+            osc.connect(g); 
+        } else {
             const woodOsc = audioCtx.createOscillator();
             const woodGain = audioCtx.createGain();
+            sourcesToStop.push(woodOsc); 
+            
             woodOsc.type = 'triangle'; 
-            woodOsc.frequency.setValueAtTime(freq * 2.1, t); // The "Knock"
+            woodOsc.frequency.setValueAtTime(freq * 2.1, t); 
 
             osc.type = 'sine';
-            osc.frequency.setValueAtTime(freq * 5.2, t); // The "Ping"
+            osc.frequency.setValueAtTime(freq * 5.2, t); 
             
             woodOsc.connect(woodGain);
             woodGain.connect(destination);
             osc.connect(g);
 
-            // 2. SOFTENED ENVELOPES
-            // We're using a slightly slower 0.005 attack to remove the "digital pop" 
-            // and a tight 50ms decay to match the other game sounds.
             const attack = 0.005; 
             const decay = 0.05; 
 
@@ -2115,18 +2187,15 @@ function playTone(freq, time, vol = 0.2, dur = 0.1, isMetronome = false) {
                 node.gain.exponentialRampToValueAtTime(0.001, t + decay);
             });
 
-            // 3. THE SANDPAPER (Textured Noise)
-            // We use a Bandpass filter to keep the noise "mid-heavy" and gritty
             const sandFilter = audioCtx.createBiquadFilter();
             sandFilter.type = 'bandpass';
             sandFilter.frequency.setValueAtTime(3500, t); 
-            sandFilter.Q.setValueAtTime(0.8, t); // Wide enough to feel "grainy"
+            sandFilter.Q.setValueAtTime(0.8, t); 
 
             noiseGain.disconnect();
             noiseGain.connect(sandFilter);
             sandFilter.connect(destination);
 
-            // The noise clings to the clave: 40ms decay
             noiseGain.gain.cancelScheduledValues(t);
             noiseGain.gain.setValueAtTime(0, t);
             noiseGain.gain.linearRampToValueAtTime(finalVol * 0.65, t + attack); 
@@ -2136,23 +2205,28 @@ function playTone(freq, time, vol = 0.2, dur = 0.1, isMetronome = false) {
             woodOsc.stop(t + 0.1);
         }
         
-        // ---> THIS BLOCK WAS MISSING! <---
-        // 4. Start everything
         osc.start(t); 
         osc.stop(t + dur + 0.05); 
         if (window.noiseBuffer) {
             noise.start(t); 
             noise.stop(t + dur + 0.05);
         }
+
+        // --- THE CATCHER: Saves the kill switch to memory! ---
+        if (beatKey) {
+            if (!activeAudioNodes[beatKey]) activeAudioNodes[beatKey] = [];
+            activeAudioNodes[beatKey].push({
+                time: t,
+                stop: () => { try { sourcesToStop.forEach(s => s.stop()); } catch(e){} }
+            });
+        }
     }
         
     
     function triggerLight(time) {
         const delay = Math.max(0, (time - audioCtx.currentTime) * 1000);
-        setTimeout(() => {
-            // --- THE KILL SWITCH: Abort if stop was pressed while this was waiting in the queue! ---
+        const tid = setTimeout(() => {
             if (!isRunning) return; 
-            
             const lightEl = document.getElementById('central-light');
             if (lightEl) {
                 lightEl.style.backgroundColor = "var(--teacher)"; 
@@ -2161,6 +2235,7 @@ function playTone(freq, time, vol = 0.2, dur = 0.1, isMetronome = false) {
                 lightEl.classList.add('light-flash');
             }
         }, delay);
+        return tid; // <--- Returns the ID so we can cancel the light flash
     }
     
     slider.oninput = (e) => { tempo = e.target.value; secondsPerBeat = 60/tempo; document.getElementById('tempo-val').innerText = tempo + " BPM"; let rk = tempo < 90 ? {t:"[EASY]", c:"--easy"} : tempo < 140 ? {t:"[MED]", c:"--medium"} : tempo < 180 ? {t:"[HARD]", c:"--hard"} : {t:"[EXPERT]", c:"--expert"}; document.getElementById('rank-label').innerText = rk.t; document.getElementById('rank-label').style.color = `var(${rk.c})`; };
@@ -2255,11 +2330,12 @@ function playTone(freq, time, vol = 0.2, dur = 0.1, isMetronome = false) {
             let currentMode = tradeMode === "solo" ? "solo" : (ts ? ts.value : "1");
             let initialMeasures = currentMode === "solo" ? 1 : parseInt(currentMode);
             
-            generateTurnPatterns(initialMeasures);
+           // --- THE FIX: Pass the flag to preserve manual drops! ---
+            generateTurnPatterns(initialMeasures, hasUserModifiedBoard);
+            hasUserModifiedBoard = false; // Instantly reset the flag for the next turn
             
             // --- THE FIX: Instantly kill the first boot flag the moment they hit start! ---
-            isFirstBoot = false;
-            // ----------------------------------------------------------------------
+            isFirstBoot = false;         
 
             const now = audioCtx.currentTime;
             masterVolumeNode.gain.setValueAtTime(0, now); 
