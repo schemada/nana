@@ -60,7 +60,9 @@ button,
     --bg: #08081a; 
     --bg-glow: #0a0a25; 
     --card-bg: #1a1a2e; 
-    --text: #ffffff; 
+    --text: #ffffff;
+    --panel-bg: #111125;       /* Default Dark Blue Panel */
+    --panel-border: #1a1a30;   /* Default Dark Border */ 
     /* The Action Accent */
     
     --action: #e94560; 
@@ -164,12 +166,14 @@ html, body {
         }
         /* --- GLOBAL SPEAKER ICON FIX --- */
         .sound-reminder {
-            font-size: 0.8rem;
-            margin-bottom: 15px;
+            /* Smoothly scales text, margins, and gaps! */
+            font-size: clamp(0.65rem, 2vmin, 1.05rem) !important;
+            margin-top: clamp(10px, 4vh, 60px) !important;
+            margin-bottom: 15px !important;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
+            gap: clamp(8px, 2vmin, 20px) !important;
         }
         .sound-reminder svg {
             width: 1.2em !important;
@@ -207,18 +211,18 @@ html, body {
             /* Top: 0px (Hugs the measure), Bottom: 6px (Hugs the controls) */
             margin: 0px auto 6px auto !important; 
         }
-/* --- DESKTOP TIGHTENING (Stops the UI from stretching wide) --- */
-.measure-wrapper {
-    width: 100%;
-    max-width: 750px !important; /* Locks the width to a perfect mobile-sized column, even on a 4K monitor */
-}
+//* --- THE MASTER COLUMN ARCHITECTURE --- */
+/* Unifies the width of all major UI blocks so iPads don't squish the top and bottom! */
+.measure-wrapper, 
 #central-light, 
 .controls, 
 .footer-row, 
-.main-title, 
-.sub-title {
+.title-group,
+.picker-container {
     width: 100%;
-    max-width: 500px !important; /* Locks the width to a perfect mobile-sized column, even on a 4K monitor */
+    max-width: 750px !important; 
+    margin-left: auto !important;
+    margin-right: auto !important;
 }
 .light-flash { animation: flashAnim 0.15s ease-out; }
 
@@ -249,7 +253,7 @@ html, body {
     justify-content: center;
 }
         .beat-cell { 
-    background: #0a0a1a; border: 4px solid #1a1a30; height: 130px; 
+    background: var(--panel-bg); border: 4px solid var(--panel-border); height: 130px; 
     border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center;
     flex: 1 1 0; /* Allows the cell to dynamically stretch and squish! */
     min-width: 0; /* Prevents text/svgs from forcing the box to stay wide */
@@ -270,7 +274,7 @@ html, body {
        .controls { 
             margin-top: clamp(10px, 3vh, 30px); 
             width: 100%; 
-            background: #111125; 
+            background: var(--panel-bg); 
             
             /* THE MATH: Dynamically shrinks the internal padding so it doesn't waste space on phones! */
             padding: clamp(8px, 4vmin, 40px) !important; 
@@ -519,26 +523,90 @@ html, body {
     display: none; justify-content: center; align-items: center; z-index: 1000;
 }
 .settings-content {
-    background: rgba(26, 26, 46, 0.7); 
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    max-height: 85dvh !important; /* Never let it be taller than the screen */
-    overflow-y: auto !important;  /* Turn on internal scrolling */
-    overscroll-behavior: contain; /* Prevents background from scrolling */
-    padding: 24px; border-radius: 12px; width: 90%; max-width: 320px;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.8), inset 0 0 20px rgba(255,255,255,0.02); 
-    text-align: center;
-}
-        .settings-content h2 { color: var(--primary); margin-top: 0; font-size: 1.2em; text-shadow: 0 0 10px var(--primary); margin-bottom: 20px;}
-.settings-group { margin-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px;}
-.setting-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; font-size: 8px; color: white;}
-.setting-row select { background: #111125; color: #fff; border: 1px solid #444; font-family: inherit; font-size: 8px; padding: 4px; }
-        .disabled-setting {
-    opacity: 0.3;
-    pointer-events: none; /* Makes it unclickable */
-}
- /* Metronome Specific Styles */
-.metro-setting-group { margin: 20px 0; text-align: left; }
-.metro-setting-group label { display: block; font-size: 8px; margin-bottom: 10px; color: #aaa; }
+            background: var(--panel-bg); 
+            border: 2px solid var(--panel-border);
+            
+            /* 1. Kills the unnecessary scrolling trap by letting it breathe */
+            max-height: 95dvh !important; 
+            overflow-y: auto;  
+            overscroll-behavior: contain; 
+            
+            /* 2. THE FLUID BOX: The padding and width now grow in proportion to the screen! */
+            padding: clamp(15px, 4vmin, 35px) !important; 
+            width: 90%; 
+            max-width: clamp(300px, 50vw, 450px) !important;
+            
+            border-radius: 12px; 
+            box-shadow: 0 20px 40px rgba(0,0,0,0.8), inset 0 0 20px rgba(255,255,255,0.02); 
+            text-align: center;
+        }
+
+        .settings-content h2 { 
+            color: var(--primary); 
+            margin-top: 0; 
+            font-size: clamp(1rem, 3vmin, 1.5rem); 
+            text-shadow: 0 0 10px var(--primary); 
+            /* Tightened the gap so it doesn't waste vertical space */
+            margin-bottom: clamp(15px, 3vmin, 25px);
+        }
+
+        .settings-group { 
+            margin-bottom: clamp(15px, 3vmin, 25px); 
+            border-bottom: 1px solid rgba(255,255,255,0.1); 
+            padding-bottom: clamp(10px, 2vmin, 15px);
+        }
+
+        .setting-row { 
+            display: flex; justify-content: space-between; align-items: center; 
+            margin-bottom: clamp(10px, 2vmin, 15px); 
+            /* Dialed the font back slightly to keep the sharp 8-bit aesthetic */
+            font-size: clamp(8px, 1.5vmin, 12px); 
+            color: white;
+        }
+
+        .setting-row select { 
+            background: var(--panel-bg); 
+            color: #fff; 
+            border: 2px solid var(--panel-border); 
+            font-family: inherit; 
+            font-size: clamp(8px, 1.5vmin, 12px); 
+            padding: clamp(4px, 1vmin, 8px); 
+            cursor: pointer; 
+            border-radius: 4px;
+        }
+
+        .disabled-setting { opacity: 0.3; pointer-events: none; }
+        
+        .metro-setting-group { 
+            margin: clamp(15px, 3vmin, 25px) 0; 
+            text-align: left; 
+        }
+
+        .metro-setting-group label { 
+            display: block; 
+            font-size: clamp(8px, 1.5vmin, 12px); 
+            margin-bottom: clamp(8px, 1.5vmin, 12px); 
+            color: #aaa; 
+        }
+
+        #close-settings { 
+            background: var(--primary); 
+            border: none; 
+            
+            /* THE COLOR FIX: Adapts to the dark background color of whichever theme is active! */
+            color: var(--bg); 
+            
+            /* THE SIZING FIX: Smoothly scales the button on iPads/Desktops! */
+            padding: clamp(10px, 2.5vmin, 16px); 
+            font-size: clamp(10px, 2vmin, 14px);
+            
+            border-radius: 6px; 
+            font-family: inherit; 
+            cursor: pointer; 
+            width: 100%; 
+            margin-top: 10px;
+            transition: transform 0.1s, filter 0.1s;
+        }
 input[type=range] { width: 100%; accent-color: var(--primary); cursor: pointer; }
 .metro-sounds { display: flex; gap: 8px; }       
 #boot-btn {
@@ -620,6 +688,9 @@ input[type=range] { width: 100%; accent-color: var(--primary); cursor: pointer; 
     /* Neutral, desaturated grey-olive for inactive state */
     background-color: #7b846e; 
     border: 2px solid #555d51;
+    --panel-bg: #8bac0f;       /* Gameboy Olive Green */
+    --panel-border: #306230;   /* Gameboy Dark Green */
+    
 }
     
     /* This forces the active cards to be bright */
@@ -640,8 +711,48 @@ input[type=range] { width: 100%; accent-color: var(--primary); cursor: pointer; 
     --bg: #2b0b3d;
     --bg-glow: #4a0e5e;
     --card-bg: #1a0624;
+    --panel-bg: #1a0624;       /* Synthwave Dark Purple */
+    --panel-border: #ff00ff;   /* Neon Pink Borders! */
 }
-        
+        /* 4. BLOOD MOON THEME */
+[data-theme="crimson"] {
+    --primary: #ff2a2a; 
+    --teacher: #ff7373; 
+    --student: #ffffff;
+    --action: #cc0000; 
+    --action-shadow: #660000; 
+    --bg: #120000;
+    --bg-glow: #240000;
+    --card-bg: #210303;
+    --panel-bg: #140101;
+    --panel-border: #4d0000;
+}
+/* 4. AMBER CRT THEME (Gold/Orange/Black) */
+[data-theme="amber"] {
+    --primary: #ffb000; 
+    --teacher: #ff6600; 
+    --student: #ffe680;
+    --action: #cc5200; 
+    --action-shadow: #4d1f00; 
+    --bg: #0a0500;
+    --bg-glow: #1a0d00;
+    --card-bg: #0a0500;
+    --panel-bg: #0f0700;
+    --panel-border: #402000;
+}
+/* 5. GHOST ARCADE THEME (Pure Monochrome) */
+[data-theme="ghost"] {
+    --primary: #ffffff; 
+    --teacher: #888888; 
+    --student: #ffffff;
+    --action: #444444; 
+    --action-shadow: #111111; 
+    --bg: #000000;
+    --bg-glow: #111111;
+    --card-bg: #000000;
+    --panel-bg: #050505;
+    --panel-border: #333333;
+}
         /* --- THE VIGNETTE OVERLAY --- */
 .vignette {
     position: fixed;
@@ -819,13 +930,12 @@ input[type=range] { width: 100%; accent-color: var(--primary); cursor: pointer; 
             }
             .sound-reminder svg { width: 1.2em !important; height: 1.2em !important; }
             
-            .version-tracker { 
-                font-size: 0.65rem !important; 
-                margin-top: 0 !important; 
-                padding-bottom: 10px !important; 
-                opacity: 0.7; 
-            }
-            
+           .version-tracker {
+            font-size: clamp(0.5rem, 1.5vmin, 0.75rem) !important;
+            padding-bottom: 10px !important;
+            margin-top: 0 !important;
+            opacity: 0.7;
+        }
 
             /* COMPACT HEADER */
             .header { padding: 8px 10px !important; }
@@ -1384,6 +1494,9 @@ input[type=range] { width: 100%; accent-color: var(--primary); cursor: pointer; 
         <option value="default" selected>CYBER BLUE</option>
         <option value="gameboy">HANDHELD POCKET</option>
         <option value="synthwave">SYNTHWAVE</option>
+        <option value="crimson">BLOOD MOON</option>
+        <option value="amber">AMBER</option>
+        <option value="ghost">GHOST</option>
     </select>
 </div>
         </div>
